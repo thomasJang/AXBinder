@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<script src="plugins/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="plugins/prettify/prettify.js"></script>
+	<link rel="stylesheet" type="text/css" href="plugins/prettify/github.css" />
+
+	<script src="src/AXBinder.js"></script>
+	<script src="src/code-preview.js"></script>
+</head>
+<body>
+
+<div id="form-target">
+
+	v1 : <input type="text" name="input-text" data-ax-path="v1"/>
+
+	<hr/>
+
+	v6.c1.cc1 : <input type="text" name="input-text" data-ax-path="v6.c1.cc1"/>
+	v6.c1.cc2 : <input type="text" name="input-text" data-ax-path="v6.c1.cc2"/>
+	v6.c1.cc3 : <input type="text" name="input-text" data-ax-path="v6.c1.cc3"/>
+
+	<hr/>
+
+	v2 :
+	<label>
+		<input type="checkbox" name="checkbox" data-ax-path="v2" value="Y"/>
+		Y
+	</label>
+	<label>
+		<input type="checkbox" name="checkbox" data-ax-path="v2" value="N"/>
+		N
+	</label>
+
+	<hr/>
+
+	v3 :
+	<label>
+		<input type="radio" name="radio" data-ax-path="v3" value="Y"/>
+		Y
+	</label>
+	<label>
+		<input type="radio" name="radio" data-ax-path="v3" value="N"/>
+		N
+	</label>
+
+	<hr/>
+
+	v4 :
+	<select name="select" data-ax-path="v4">
+		<option vlaue="o1">o1</option>
+		<option vlaue="o2">o2</option>
+		<option vlaue="o2">o2</option>
+	</select>
+
+	<hr/>
+
+	v5 :
+	<textarea name="textarea" data-ax-path="v5"></textarea>
+
+
+	<div id="div-element"></div>
+
+</div>
+
+<hr/>
+
+<button onclick="set_value('v1', '새로운값');">set_value('v1', '새로운값');</button>
+<button onclick="set_value('v6', 'Object');">set_value('v6', 'Object');</button>
+
+<br/>
+<br/>
+
+<pre class="prettyprint linenums" id="script-preview"></pre>
+<script id="script-body">
+var obj = {
+	v1: "abcd", v2: "N", v3: "Y", v4: "o2", v5: "multiline\ndatas", v6: {
+		c1: {
+			cc1: "v6.c1.cc1's value", cc2: "v6.c1.cc2's value", cc3: "v6.c1.cc3's value"
+		}
+	}
+};
+
+var myModel = AXBinder.set_model(obj, $("#form-target"));
+
+// print all
+console.log(myModel.getAll());
+
+function set_value(k, v) {
+	if (v == "Object") {
+		myModel.set(k, {c1: {cc1: "-- new cc1", cc2: "-- new cc2", cc3: "-- new cc3"}});
+	} else {
+		myModel.set(k, v);
+	}
+
+	// print k
+	console.log(myModel.get(k));
+}
+</script>
+</body>
+</html>
