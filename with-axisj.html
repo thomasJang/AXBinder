@@ -63,7 +63,7 @@
 	<hr/>
 
 	v4 :
-	<select name="select" data-ax-path="v4" class="AXSelect">
+	<select name="select" data-ax-path="v4" class="AXSelect" id="select-target-01">
 		<option vlaue="o1">o1</option>
 		<option vlaue="o2">o2</option>
 		<option vlaue="o3">o3</option>
@@ -107,6 +107,11 @@
 		console.log(el);
 	});
 
+	myModel.set_onchange("v2", function(el){
+		// console.log(this);
+		console.log(el);
+	});
+
 	function set_value(k, v) {
 		if (v == "Object") {
 			myModel.set(k, {c1: {cc1: "-- new cc1", cc2: "-- new cc2", cc3: "-- new cc3"}});
@@ -118,6 +123,9 @@
 		console.log(myModel.get(k));
 	}
 
+$(document.body).ready(function(){
+	$(".AXSelect").bindSelect();
+});
 
 </script>
 </body>

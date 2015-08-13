@@ -61,6 +61,7 @@ var AXBinder = (function () {
 		// binding event to els
 		this.view_target.find('[data-ax-path]').bind("change", function () {
 			var dom = $(this), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
+			var i, hasItem = false, checked, new_value = [];
 
 			if (value_type == "object" || value_type == "array") {
 				setAllow = false;
@@ -70,20 +71,29 @@ var AXBinder = (function () {
 				if (get_type(origin_value) != "array") {
 					origin_value = [].concat(origin_value);
 				}
-				var i = origin_value.length, hasItem = false, hasItemIndex, checked = this.checked;
-				while (i-- && hasItem) {
-					if (origin_value[i] != this.value) {
-						hasItem      = true;
-						hasItemIndex = i;
+				i = origin_value.length, hasItem = false, checked = this.checked;
+				while (i--) {
+					if (origin_value[i] == this.value) {
+						hasItem = true;
 					}
 				}
+				
+
+				
 				if (checked) {
 					if (!hasItem) origin_value.push(this.value);
 				} else {
-					if (hasItem) {
-						origin_value.splice(hasItemIndex, 1);
+					i = origin_value.length;
+					while (i--) {
+						if (origin_value[i] == this.value) {
+							//hasItemIndex = i;
+						} else {
+							new_value.push(origin_value[i]);
+						}
 					}
+					origin_value = new_value;
 				}
+
 				(Function("val", "this." + data_path + " = val;")).call(_this.model, origin_value);
 				_this.change(data_path, {el: this, tagname: this.tagName.toLowerCase(), value: origin_value});
 			} else {
@@ -175,11 +185,14 @@ var AXBinder = (function () {
 	};
 
 	klass.prototype.change = function (data_path, that) {
-		console.log(data_path);
 		var callBack = this.trigger[data_path];
-		if(callBack){
+		if (callBack) {
 			callBack.call(that, that);
 		}
+	};
+
+	klass.prototype.update = function(){
+
 	};
 
 	return new klass();
