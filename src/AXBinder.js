@@ -77,13 +77,14 @@ var AXBinder = (function () {
 				while(i-- && hasItem){
 					if(origin_value[i] != this.value){
 						hasItem = true;
+						hasItemIndex = i;
 					}
 				}
 				if(checked) {
 					if (!hasItem) origin_value.push(this.value);
 				}else{
 					if(hasItem){
-
+						origin_value.splice(hasItemIndex, 1);
 					}
 				}
 				(Function("val", "this." + data_path + " = val;")).call(_this.model, origin_value);
