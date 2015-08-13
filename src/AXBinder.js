@@ -1,28 +1,30 @@
 var AXBinder = (function () {
 	var _toString = Object.prototype.toString;
 
-	function is_iterable(O) {
+	function get_type(O) {
+		var typeName;
 		if (O != null && O == O.window) {
-			return false;
+			typeName = "window";
 		} else if (!!(O && O.nodeType == 1)) {
-			return false;
+			typeName = "element";
 		} else if (!!(O && O.nodeType == 11)) {
-			return false;
+			typeName = "fragment";
 		} else if (typeof O === "undefined") {
-			return false;
+			typeName = "undefined";
 		} else if (_toString.call(O) == "[object Object]") {
-			return true;
+			typeName = "object";
 		} else if (_toString.call(O) == "[object Array]") {
-			return true;
+			typeName = "array";
 		} else if (_toString.call(O) == "[object String]") {
-			return false;
+			typeName = "string";
 		} else if (_toString.call(O) == "[object Number]") {
-			return false;
+			typeName = "number";
 		} else if (_toString.call(O) == "[object NodeList]") {
-			return true;
+			typeName = "nodelist";
 		} else if (typeof O === "function") {
-			return false;
+			typeName = "function";
 		}
+		return typeName;
 	}
 
 	var klass = function () {
@@ -56,7 +58,41 @@ var AXBinder = (function () {
 		});
 
 		// binding event to els
+		this.view_target.find('[data-ax-path]').bind("change", function () {
+			var dom = $(this),
+			    data_path = dom.attr("data-ax-path"),
+			    origin_value = (Function("", "return this." + data_path + ";")).call(_this.model),
+			    value_type = get_type(origin_value),
+			    setAllow = true;
 
+			if (value_type == "object" || value_type == "array") {
+				setAllow = false;
+			}
+
+			if (this.type.toLowerCase() == "checkbox") {
+				if(get_type(origin_value) != "array"){
+					origin_value = [].concat(origin_value);
+				}
+				var i = origin_value.length, hasItem = false, hasItemIndex, checked = this.checked;
+				while(i-- && hasItem){
+					if(origin_value[i] != this.value){
+						hasItem = true;
+					}
+				}
+				if(checked) {
+					if (!hasItem) origin_value.push(this.value);
+				}else{
+					if(hasItem){
+
+					}
+				}
+				(Function("val", "this." + data_path + " = val;")).call(_this.model, origin_value);
+			} else {
+				if (setAllow) {
+					(Function("val", "this." + data_path + " = val;")).call(_this.model, this.value);
+				}
+			}
+		});
 	};
 	
 	klass.prototype.set_els_value = function (el, tagname, type, value) {
@@ -65,12 +101,14 @@ var AXBinder = (function () {
 
 		if (tagname == "input") {
 			if (type == "checkbox" || type == "radio") {
-				i = value.length;
+				i           = value.length;
+				var checked = false;
 				while (i--) {
 					if (el.value === value[i].toString()) {
-						el.checked = true;
+						checked = true;
 					}
 				}
+				el.checked = checked;
 			} else {
 				el.value = value.join('');
 			}
@@ -95,14 +133,24 @@ var AXBinder = (function () {
 	};
 
 	klass.prototype.set = function (data_path, value) {
-		var _this = this;
+		var _this = this, obj_type, i;
 		(Function("val", "this." + data_path + " = val;")).call(this.model, value);
+		obj_type  = get_type(value);
 
-		if (is_iterable(value)){
-			for(var k in value){
+		if (obj_type == "object") {
+			for (var k in value) {
 				this.set(data_path + "." + k, value[k]);
 			}
-		}else {
+		} else if (obj_type == "array") {
+			this.view_target.find('[data-ax-path="' + data_path + '"]').each(function () {
+				if (this.type.toLowerCase() == "checkbox" || this.type.toLowerCase() == "radio")
+					_this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value);
+			});
+			i = value.length;
+			while (i--) {
+				this.set(data_path + "[" + i + "]", value[i]);
+			}
+		} else {
 			// apply data value to els
 			this.view_target.find('[data-ax-path="' + data_path + '"]').each(function () {
 				_this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value);
