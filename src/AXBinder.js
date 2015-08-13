@@ -30,6 +30,7 @@ var AXBinder = (function () {
 	var klass = function () {
 		this.model       = {};
 		this.view_target = null;
+		this.trigger     = {};
 	};
 
 	klass.prototype.set_model = function (model, view_target) {
@@ -59,44 +60,42 @@ var AXBinder = (function () {
 
 		// binding event to els
 		this.view_target.find('[data-ax-path]').bind("change", function () {
-			var dom = $(this),
-			    data_path = dom.attr("data-ax-path"),
-			    origin_value = (Function("", "return this." + data_path + ";")).call(_this.model),
-			    value_type = get_type(origin_value),
-			    setAllow = true;
+			var dom = $(this), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
 
 			if (value_type == "object" || value_type == "array") {
 				setAllow = false;
 			}
 
 			if (this.type.toLowerCase() == "checkbox") {
-				if(get_type(origin_value) != "array"){
+				if (get_type(origin_value) != "array") {
 					origin_value = [].concat(origin_value);
 				}
 				var i = origin_value.length, hasItem = false, hasItemIndex, checked = this.checked;
-				while(i-- && hasItem){
-					if(origin_value[i] != this.value){
-						hasItem = true;
+				while (i-- && hasItem) {
+					if (origin_value[i] != this.value) {
+						hasItem      = true;
 						hasItemIndex = i;
 					}
 				}
-				if(checked) {
+				if (checked) {
 					if (!hasItem) origin_value.push(this.value);
-				}else{
-					if(hasItem){
+				} else {
+					if (hasItem) {
 						origin_value.splice(hasItemIndex, 1);
 					}
 				}
 				(Function("val", "this." + data_path + " = val;")).call(_this.model, origin_value);
+				_this.change(data_path, {el: this, tagname: this.tagName.toLowerCase(), value: origin_value});
 			} else {
 				if (setAllow) {
 					(Function("val", "this." + data_path + " = val;")).call(_this.model, this.value);
+					_this.change(data_path, {el: this, tagname: this.tagName.toLowerCase(), value: this.value});
 				}
 			}
 		});
 	};
 	
-	klass.prototype.set_els_value = function (el, tagname, type, value) {
+	klass.prototype.set_els_value = function (el, tagname, type, value, data_path) {
 		value = [].concat(value);
 		var options, i;
 
@@ -123,14 +122,16 @@ var AXBinder = (function () {
 					}
 				}
 			}
+			if (window.AXSelect) { // AXISJ 사용가능
+				$(el).bindSelectSetValue(value[value.length - 1]);
+			}
 		} else if (tagname == "textarea") {
 			el.value = value.join('');
 		}
-	};
 
-	klass.prototype.$ = function () {
-
-		return this;
+		if (data_path) {
+			this.change(data_path, {el: el, tagname: tagname, value: value});
+		}
 	};
 
 	klass.prototype.set = function (data_path, value) {
@@ -145,7 +146,7 @@ var AXBinder = (function () {
 		} else if (obj_type == "array") {
 			this.view_target.find('[data-ax-path="' + data_path + '"]').each(function () {
 				if (this.type.toLowerCase() == "checkbox" || this.type.toLowerCase() == "radio")
-					_this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value);
+					_this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value, data_path);
 			});
 			i = value.length;
 			while (i--) {
@@ -154,7 +155,7 @@ var AXBinder = (function () {
 		} else {
 			// apply data value to els
 			this.view_target.find('[data-ax-path="' + data_path + '"]').each(function () {
-				_this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value);
+				_this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value, data_path);
 			});
 		}
 		return this;
@@ -166,6 +167,19 @@ var AXBinder = (function () {
 
 	klass.prototype.getAll = function () {
 		return this.get();
+	};
+
+	klass.prototype.set_onchange = function (data_path, callBack) {
+		this.trigger[data_path] = callBack;
+		return this;
+	};
+
+	klass.prototype.change = function (data_path, that) {
+		console.log(data_path);
+		var callBack = this.trigger[data_path];
+		if(callBack){
+			callBack.call(that, that);
+		}
 	};
 
 	return new klass();
