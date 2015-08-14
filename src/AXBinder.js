@@ -61,9 +61,33 @@ var AXBinder = (function () {
 
 		// collect tmpl
 		this.view_target.find('[data-ax-repeat]').each(function () {
-			var dom               = $(this), data_path = dom.attr("data-ax-repeat");
+			var dom        = $(this), data_path = dom.attr("data-ax-repeat");
+			var child_tmpl = {};
+			// collect child tmpl
+
+			/*
+			var child_list = dom.find('[data-ax-repeat-child]');
+			child_list.each(function () {
+				var child_dom = $(this);
+				var p_el      = this, n_data_path = child_dom.attr("data-ax-repeat-child");
+				while (p_el = p_el.parentNode) {
+					if (p_el.getAttribute("data-ax-repeat")) {
+						break;
+					} else if (p_el.getAttribute("data-ax-repeat-child")) {
+						n_data_path = p_el.getAttribute("data-ax-repeat-child") + "." + n_data_path;
+						child_dom.attr("data-ax-repeat-child", n_data_path);
+						break;
+					}
+				}
+				child_tmpl[n_data_path] = {
+					content: child_dom.html()
+				};
+				child_dom.empty();
+			});
+			*/
+
 			_this.tmpl[data_path] = {
-				container: dom, content: dom.html()
+				container: dom, content: dom.html(), child_tmpl: child_tmpl
 			};
 			dom.empty();
 		});
@@ -114,7 +138,7 @@ var AXBinder = (function () {
 
 		//_this.tmpl
 		for (var tk in _this.tmpl) {
-			this.print_tmpl(tk, _this.tmpl[tk]);
+			this.print_tmpl(tk, _this.tmpl[tk], "isInit");
 		}
 	};
 	
@@ -208,17 +232,36 @@ var AXBinder = (function () {
 
 	};
 
-	klass.prototype.print_tmpl = function (data_path, tmpl) {
-		console.log(this.model[data_path]);
+	klass.prototype.print_tmpl = function (data_path, tmpl, isInit) {
+		//console.log(this.model[data_path]);
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
 		if (list && get_type(list) == "array") {
 
 			for (var i = 0, l = list.length; i < l; i++) {
-				var item        = list[i];
-				item["__index__"] = i;
-				tmpl.container.append(Mustache.render(tmpl.content, item));
+				var item          = list[i];
+				item.__i__ = i;
+				if(i === 0) item.__first__ = true;
+
+				var fragdom = $(Mustache.render(tmpl.content, item));
+				/*
+				if (tmpl.child_tmpl) {
+					for (var k in tmpl.child_tmpl) {
+						if(item[k]) {
+							for (var ii = 0, il = item[k].length; ii < il; ii++) {
+								var _item          = item[k][ii];
+								_item["__i__"] = i;
+								fragdom.find('[data-ax-repeat-child="' + k + '"]').html(Mustache.render(tmpl.child_tmpl[k].content, _item));
+							}
+						}
+					}
+				}
+				*/
+				tmpl.container.append(fragdom);
 			}
 
+			tmpl.container.bind("change", function(){
+
+			});
 		}
 	};
 
@@ -226,15 +269,14 @@ var AXBinder = (function () {
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
 		var tmpl = this.tmpl[data_path];
 
-		item["__index__"] = list.length;
+		item["__i__"] = list.length;
 		tmpl.container.append(Mustache.render(tmpl.content, item));
 		(Function("val", "this." + data_path + ".push(val);")).call(this.model, item);
 	};
 
-	klass.prototype.remove = function (data_path, index){
+	klass.prototype.remove = function (data_path, index) {
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
-		if(typeof index == "undefined") index = list.length-1;
-		item = list[index];
+		if (typeof index == "undefined") index = list.length - 1;
 		list.splice(index, 1);
 
 		this.tmpl[data_path].container.empty();

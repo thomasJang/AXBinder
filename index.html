@@ -74,16 +74,42 @@
 	<h1>list</h1>
 	<button onclick="push_item();">list.push</button>
 	<button onclick="remove_item();">list.remove</button>
+
 	<div data-ax-repeat="list">
 		<div style="border:1px solid #ccc; margin: 10px;">
-			<span>{{__index__}}</span>
+			{{#__first__}}
+			<button data-ax-repeat-add="{{__i__}}">+</button>
+			{{/__first__}}
+			{{^__first__}}
+			<button data-ax-repeat-remove="{{__i__}}">-</button>
+			{{/__first__}}
+
+			<br/>
+
+			<span>#{{__i__}}.</span>
 			<span>{{a}}</span>
 			{{#b}}
 			<p>{{b}}</p>
 			{{/b}}
+
+			{{#c}}
+				{{__i__}}
+				<span>{{a}}</span>
+				{{#b}}
+				, <span>{{b}}</span>
+				{{/b}}
+
+				{{#__first__}}
+				<button data-ax-repeat-child-add="{{__i__}}">+</button>
+				{{/__first__}}
+				{{^__first__}}
+				<button data-ax-repeat-child-remove="{{__i__}}">-</button>
+				{{/__first__}}
+			{{/c}}
+
+			{{calc}}
 		</div>
 	</div>
-
 </div>
 
 <hr/>
@@ -101,7 +127,29 @@
 			c1: {
 				cc1: "v6.c1.cc1's value", cc2: "v6.c1.cc2's value", cc3: "v6.c1.cc3's value"
 			}
-		}, list: [{a: "장기영", b: "황인서"}, {a: "장기영 1"}]
+		},
+		list: [
+			{a: "장기영", b: "황인서", c: [
+				{a: "aaa-a", b: "bbbb"},
+				{a: "aaa-b", b: "bbbb"}
+			]},
+			{a: "장기영 1"}
+		],
+		v7: {
+			list: [
+				{
+					a: "장기영",
+					b: "황인서",
+					c: [
+						{a: "aaa-a", b: "bbbb"},
+						{a: "aaa-b", b: "bbbb"}
+					]
+				},
+				{
+					a: "장기영 1"
+				}
+			]
+		}
 	};
 
 	var myModel = AXBinder.set_model(obj, $("#form-target"));
@@ -110,6 +158,11 @@
 	console.log(myModel.getAll());
 
 	myModel.set_onchange("v1", function (el) {
+		// console.log(this);
+		console.log(el);
+	});
+
+	myModel.set_onchange("v6.c1.cc1", function (el) {
 		// console.log(this);
 		console.log(el);
 	});
@@ -126,13 +179,13 @@
 	}
 
 	function push_item() {
-		myModel.push("list", {a: "장서우"});
+		myModel.push("v7.list", {a: "장서우"});
 	}
 	function remove_item() {
-		myModel.remove("list");
+		myModel.remove("v7.list");
 	}
 	function update_item() {
-		myModel.update("list", 0, {a: "장서우"});
+		myModel.update("v7.list", 0, {a: "장서우"});
 	}
 
 	// todo : repeat 안에서의 element data binding
