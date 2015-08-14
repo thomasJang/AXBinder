@@ -6,8 +6,9 @@
 	<title></title>
 	<script src="plugins/jquery/jquery.min.js"></script>
 	<script type="text/javascript" src="plugins/prettify/prettify.js"></script>
-	<link rel="stylesheet" type="text/css" href="plugins/prettify/github.css" />
+	<link rel="stylesheet" type="text/css" href="plugins/prettify/github.css"/>
 
+	<script src="plugins/mustache/mustache.js"></script>
 	<script src="src/AXBinder.js"></script>
 	<script src="src/code-preview.js"></script>
 
@@ -70,8 +71,18 @@
 	v5 :
 	<textarea name="textarea" data-ax-path="v5"></textarea>
 
-
-	<div id="div-element"></div>
+	<h1>list</h1>
+	<button onclick="push_item();">list.push</button>
+	<button onclick="remove_item();">list.remove</button>
+	<div data-ax-repeat="list">
+		<div style="border:1px solid #ccc; margin: 10px;">
+			<span>{{__index__}}</span>
+			<span>{{a}}</span>
+			{{#b}}
+			<p>{{b}}</p>
+			{{/b}}
+		</div>
+	</div>
 
 </div>
 
@@ -85,34 +96,46 @@
 
 <pre class="prettyprint linenums" id="script-preview"></pre>
 <script id="script-body">
-var obj = {
-	v1: "abcd", v2: "N", v3: "Y", v4: "o2", v5: "multiline\ndatas", v6: {
-		c1: {
-			cc1: "v6.c1.cc1's value", cc2: "v6.c1.cc2's value", cc3: "v6.c1.cc3's value"
+	var obj = {
+		v1     : "abcd", v2: "N", v3: "Y", v4: "o2", v5: "multiline\ndatas", v6: {
+			c1: {
+				cc1: "v6.c1.cc1's value", cc2: "v6.c1.cc2's value", cc3: "v6.c1.cc3's value"
+			}
+		}, list: [{a: "장기영", b: "황인서"}, {a: "장기영 1"}]
+	};
+
+	var myModel = AXBinder.set_model(obj, $("#form-target"));
+
+	// print all
+	console.log(myModel.getAll());
+
+	myModel.set_onchange("v1", function (el) {
+		// console.log(this);
+		console.log(el);
+	});
+
+	function set_value(k, v) {
+		if (v == "Object") {
+			myModel.set(k, {c1: {cc1: "-- new cc1", cc2: "-- new cc2", cc3: "-- new cc3"}});
+		} else {
+			myModel.set(k, v);
 		}
-	}
-};
 
-var myModel = AXBinder.set_model(obj, $("#form-target"));
-
-// print all
-console.log(myModel.getAll());
-
-myModel.set_onchange("v1", function(el){
-	// console.log(this);
-	console.log(el);
-});
-
-function set_value(k, v) {
-	if (v == "Object") {
-		myModel.set(k, {c1: {cc1: "-- new cc1", cc2: "-- new cc2", cc3: "-- new cc3"}});
-	} else {
-		myModel.set(k, v);
+		// print k
+		console.log(myModel.get(k));
 	}
 
-	// print k
-	console.log(myModel.get(k));
-}
+	function push_item() {
+		myModel.push("list", {a: "장서우"});
+	}
+	function remove_item() {
+		myModel.remove("list");
+	}
+	function update_item() {
+		myModel.update("list", 0, {a: "장서우"});
+	}
+
+	// todo : repeat 안에서의 element data binding
 </script>
 </body>
 </html>

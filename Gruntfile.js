@@ -72,7 +72,7 @@
             },
             dist: {
                 files: {
-                    'dist/AXBinder.min.js': ['src/AXBinder.js']
+                    'dist/AXBinder.min.js': ['plugins/mustache/mustache.js', 'src/AXBinder.js']
                 }
             }
         },

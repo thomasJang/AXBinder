@@ -29,6 +29,7 @@ var AXBinder = (function () {
 
 	var klass = function () {
 		this.model       = {};
+		this.tmpl        = {};
 		this.view_target = null;
 		this.trigger     = {};
 	};
@@ -58,9 +59,18 @@ var AXBinder = (function () {
 			_this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val);
 		});
 
+		// collect tmpl
+		this.view_target.find('[data-ax-repeat]').each(function () {
+			var dom               = $(this), data_path = dom.attr("data-ax-repeat");
+			_this.tmpl[data_path] = {
+				container: dom, content: dom.html()
+			};
+			dom.empty();
+		});
+
 		// binding event to els
 		this.view_target.find('[data-ax-path]').bind("change", function () {
-			var dom = $(this), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
+			var dom        = $(this), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
 			var i, hasItem = false, checked, new_value = [];
 
 			if (value_type == "object" || value_type == "array") {
@@ -77,8 +87,6 @@ var AXBinder = (function () {
 						hasItem = true;
 					}
 				}
-				
-
 				
 				if (checked) {
 					if (!hasItem) origin_value.push(this.value);
@@ -103,6 +111,11 @@ var AXBinder = (function () {
 				}
 			}
 		});
+
+		//_this.tmpl
+		for (var tk in _this.tmpl) {
+			this.print_tmpl(tk, _this.tmpl[tk]);
+		}
 	};
 	
 	klass.prototype.set_els_value = function (el, tagname, type, value, data_path) {
@@ -191,7 +204,44 @@ var AXBinder = (function () {
 		}
 	};
 
-	klass.prototype.update = function(){
+	klass.prototype.reload = function () {
+
+	};
+
+	klass.prototype.print_tmpl = function (data_path, tmpl) {
+		console.log(this.model[data_path]);
+		var list = (Function("", "return this." + data_path + ";")).call(this.model);
+		if (list && get_type(list) == "array") {
+
+			for (var i = 0, l = list.length; i < l; i++) {
+				var item        = list[i];
+				item["__index__"] = i;
+				tmpl.container.append(Mustache.render(tmpl.content, item));
+			}
+
+		}
+	};
+
+	klass.prototype.push = function (data_path, item) {
+		var list = (Function("", "return this." + data_path + ";")).call(this.model);
+		var tmpl = this.tmpl[data_path];
+
+		item["__index__"] = list.length;
+		tmpl.container.append(Mustache.render(tmpl.content, item));
+		(Function("val", "this." + data_path + ".push(val);")).call(this.model, item);
+	};
+
+	klass.prototype.remove = function (data_path, index){
+		var list = (Function("", "return this." + data_path + ";")).call(this.model);
+		if(typeof index == "undefined") index = list.length-1;
+		item = list[index];
+		list.splice(index, 1);
+
+		this.tmpl[data_path].container.empty();
+		this.print_tmpl(data_path, this.tmpl[data_path]);
+	};
+
+	klass.prototype.update = function () {
 
 	};
 
