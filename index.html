@@ -148,7 +148,8 @@
 
 						</td>
 						<td>
-							<input type="text" name="input-text" id="name-{{__i__}}" data-ax-item-path="name" class="AXInput W60"/>
+							<input type="text" name="input-text" id="name-{{__i__}}" data-ax-item-path="name"
+							       class="AXInput W60"/>
 						</td>
 						<td>
 							<label>
@@ -163,27 +164,32 @@
 						</td>
 						<td>
 							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby" value="sport"/>
+								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+								       value="sport"/>
 								sport
 							</label>
 							<br/>
 							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby" value="movie"/>
+								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+								       value="movie"/>
 								movie
 							</label>
 							<br/>
 							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby" value="music"/>
+								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+								       value="music"/>
 								music
 							</label>
 							<br/>
 							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby" value="play"/>
+								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+								       value="play"/>
 								play
 							</label>
 							<br/>
 							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby" value="work"/>
+								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+								       value="work"/>
 								work
 							</label>
 						</td>
@@ -197,6 +203,7 @@
 						<td>
 
 							{{#child}}
+							{{^__DELETED__}}
 							<input type="text" name="text" data-ax-item-path="child[{{__i__}}].name" value=""
 							       class="AXInput W50"/>
 							{{#__first__}}
@@ -209,7 +216,7 @@
 							        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="remove">-
 							</button>
 							{{/__first__}}
-
+							{{/__DELETED__}}
 							{{/child}}
 
 						</td>
@@ -242,20 +249,27 @@
 			email      : "tom@axisj.com",
 			sex        : "M",
 			character  : "wild",
-			hobby      : ["movie","play"],
+			hobby      : ["movie", "play"],
 			description: "",
-			child      : [{name: "빈값"}]
+			child      : [{name: "빈값"}, {name: "빈값"}]
+		}, {
+			name       : "thomas",
+			tel        : "010-8881-9000",
+			email      : "tom@axisj.com",
+			sex        : "M",
+			character  : "wild",
+			hobby      : ["movie", "play"],
+			description: "",
+			child      : [{name: "빈값"}, {name: "빈값"}]
 		}]
 	};
 
 	var fnObj = {
-		pageStart: function(){
+		pageStart: function () {
 			this.form.init();
-		},
-		form: {
-			model: null,
-			init: function(){
-				var _this = this;
+		}, form  : {
+			model        : null, init: function () {
+				var _this  = this;
 				/**
 				 * AXBinder.set_model(Object, jQueryObject);
 				 * Object를 타겟 아이템 아래에 반영
@@ -266,47 +280,53 @@
 				/**
 				 * this.model.onchange(objectPath, Function);
 				 */
-				this.model.onchange("*", function(){
+				this.model.onchange("*", function () {
+					console.log(this);
 					_this.print_json();
 				});
 
-				this.model.onclick("list", function(el){
-					var child_key = this.jquery.attr("data-ax-repeat-child");
-					if(child_key){
-						if(this.value == "add") {
-							this.item[child_key].push({name:""});
-						}else{
-							this.item[child_key].splice(this.item[child_key].length-1, 1);
+				/**
+				 * this.model.onclick(objectPath, callBack);
+				 */
+				this.model.onclick("list", function () {
+					console.log(this);
+					var child_key = this.jquery.attr("data-ax-repeat-child"), child_index = this.jquery.attr("data-ax-repeat-child-c-index");
+					if (child_key) {
+						if (this.value == "add") {
+							_this.model.child_add(this.repeat_path, this.item_index, child_key, {name: ""});
+						} else {
+							_this.model.child_remove(this.repeat_path, this.item_index, child_key, child_index);
 						}
-						_this.model.update(this.repeat_path, this.item_index, this.item);
-					}
-					else if(this.value == "add"){
+					} else if (this.value == "add") {
 						_this.add();
-					}
-					else{
+					} else {
 						//console.log(this.repeat_path, this.item_index);
 						_this.remove(this.repeat_path, this.item_index);
 					}
 				});
 
-				$("#ax-btn-list-add").click(function(){
+				$("#ax-btn-list-add").click(function () {
 					_this.add();
 				});
-			},
-			add: function(){
-				this.model.push("list", {name: "name:" + this.model.model.list.length, child:[]});
-			},
-			remove: function(repeat_path, item_index){
+			}, add       : function () {
+				this.model.add("list", {name: "name:" + this.model.model.list.length, child: [{name: ""}]});
+			}, remove    : function (repeat_path, item_index) {
 				this.model.remove(repeat_path, item_index);
-			},
-			print_json: function(){
-				$("#json-preview").html( jsonPretty(this.model.get()) );
+			}, update    : function (repeat_path, item_index, item) {
+				/**
+				 * repeat_item update
+				 */
+				this.model.update(repeat_path, item_index, item);
+			}, print_json: function () {
+				var model = this.model.get();
+				console.log(model.list);
+				$("#json-preview").html(jsonPretty(model));
 				prettyPrint();
 			}
 		}
 	};
 
-	$(document.body).ready(function(){
+	$(document.body).ready(function () {
 		fnObj.pageStart();
 	});
 

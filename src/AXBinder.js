@@ -110,11 +110,11 @@ var AXBinder = (function () {
 				}
 
 				(Function("val", "this." + data_path + " = val;")).call(_this.model, origin_value);
-				_this.change(data_path, {el: this, tagname: this.tagName.toLowerCase(), value: origin_value});
+				_this.change(data_path, {el: this, jquery: dom, tagname: this.tagName.toLowerCase(), value: origin_value});
 			} else {
 				if (setAllow) {
 					(Function("val", "this." + data_path + " = val;")).call(_this.model, this.value);
-					_this.change(data_path, {el: this, tagname: this.tagName.toLowerCase(), value: this.value});
+					_this.change(data_path, {el: this, jquery: dom, tagname: this.tagName.toLowerCase(), value: this.value});
 				}
 			}
 		});
@@ -196,10 +196,6 @@ var AXBinder = (function () {
 		return (typeof data_path == "undefined") ? this.model : (Function("", "return this." + data_path + ";")).call(this.model);
 	};
 
-	klass.prototype.getAll = function () {
-		return this.get();
-	};
-
 	klass.prototype.onchange = function (data_path, callBack) {
 		this.change_trigger[data_path || "*"] = callBack;
 		return this;
@@ -239,11 +235,12 @@ var AXBinder = (function () {
 				var item   = list[i];
 				item.__i__ = i;
 				if (i === 0) item.__first__ = true;
-
-				var fragdom = $(Mustache.render(tmpl.content, item));
-				fragdom.attr("data-ax-repeat-i", item.__i__);
-				this.bind_event_tmpl(fragdom, data_path);
-				tmpl.container.append(fragdom);
+				if(!item.__DELETED__) {
+					var fragdom = $(Mustache.render(tmpl.content, item));
+					fragdom.attr("data-ax-repeat-i", item.__i__);
+					this.bind_event_tmpl(fragdom, data_path);
+					tmpl.container.append(fragdom);
+				}
 			}
 		}
 	};
@@ -320,21 +317,31 @@ var AXBinder = (function () {
 				}
 
 				(Function("val", "this." + mix_path + " = val;")).call(_this.model, origin_value);
-				_this.change(mix_path, {el: this, tagname: this.tagName.toLowerCase(), value: origin_value});
+				_this.change(mix_path, {el: this, jquery: dom, tagname: this.tagName.toLowerCase(), value: origin_value});
 			} else {
 				if (setAllow) {
 					(Function("val", "this." + mix_path + " = val;")).call(_this.model, this.value);
-					_this.change(mix_path, {el: this, tagname: this.tagName.toLowerCase(), value: this.value});
+					_this.change(mix_path, {el: this, jquery: dom, tagname: this.tagName.toLowerCase(), value: this.value});
 				}
 			}
 		});
 	};
 
-	klass.prototype.push = function (data_path, item) {
+	klass.prototype.add = function (data_path, item) {
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
 		var tmpl = this.tmpl[data_path];
+		item.__i__ = list.length;
+		item.__ADDED__ = true;
 
-		item.__i__  = list.length;
+		// 추가되는 하위 아이템 중에 object array를 찾아 __ADDED__ 값을 추가해줍니다.
+		for(var k in item){
+			if(get_type(item[k]) == "array" && item[k][0] && get_type(item[k][0]) == "object"){
+				for(var ii=0, il=item[k].length;ii<il;ii++){
+					 item[k][ii].__ADDED__ = true;
+				}
+			}
+		}
+
 		var fragdom = $(Mustache.render(tmpl.content, item));
 		fragdom.attr("data-ax-repeat-i", item.__i__);
 
@@ -349,8 +356,13 @@ var AXBinder = (function () {
 	klass.prototype.remove = function (data_path, index) {
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
 		if (typeof index == "undefined") index = list.length - 1;
-		list.splice(index, 1);
-
+		var remove_item = list[index];
+		if(remove_item.__ADDED__){
+			list.splice(index, 1);
+		}
+		else{
+			list[index].__DELETED__ = true;
+		}
 		this.tmpl[data_path].container.empty();
 		this.print_tmpl(data_path, this.tmpl[data_path]);
 		this.change("*");
@@ -366,6 +378,32 @@ var AXBinder = (function () {
 		this.print_tmpl(data_path, this.tmpl[data_path]);
 		this.change("*");
 		return this;
+	};
+
+	klass.prototype.child_add = function (data_path, index, child_path, child_item) {
+		var _list = (Function("", "return this." + data_path + ";")).call(this.model);
+		var list = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
+		child_item.__ADDED__ = true;
+		list.push(child_item);
+		this.update(data_path, index, _list[index]);
+	};
+
+	klass.prototype.child_remove = function (data_path, index, child_path, child_index) {
+		var _list = (Function("", "return this." + data_path + ";")).call(this.model);
+		var list = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
+		var remove_item = list[child_index];
+		if(remove_item.__ADDED__){
+			list.splice(child_index, 1);
+		}
+		else{
+			list[child_index].__DELETED__ = true;
+		}
+		this.update(data_path, index, _list[index]);
+	};
+
+	klass.prototype.child_update = function (data_path, index, child_path, child_index, child_item) {
+		//MODIFIED
+
 	};
 
 	return new klass();
