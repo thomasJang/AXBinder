@@ -7,3 +7,6 @@ Simple two way binding javascript, jQuery plugin
 http://thomasjang.github.io/AXBinder/
 
 
+## dependencies
+- jQuery
+- Mustache - dist/AXBinder.min.js 내장
