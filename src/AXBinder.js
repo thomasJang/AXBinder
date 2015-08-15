@@ -33,6 +33,7 @@ var AXBinder = (function () {
 		this.view_target    = null;
 		this.change_trigger = {};
 		this.click_trigger  = {};
+		this.onerror        = null;
 	};
 
 	klass.prototype.set_model = function (model, view_target) {
@@ -50,47 +51,27 @@ var AXBinder = (function () {
 		this.view_target.find('[data-ax-path]').each(function () {
 			var dom = $(this), data_path = dom.attr("data-ax-path");
 
-			var val = "";
+			var val;
 			try {
 				val = (Function("", "return this." + data_path + ";")).call(_this.model);
 			} catch (e) {
-				console.log("not found target [model." + data_path + "]");
+				/**
+				 * onerror를 선언 한 경우에만 에러 출력
+				 * */
+				if(_this.onerror) _this.onerror("not found target [model." + data_path + "]");
 			}
 
-			_this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val);
+			if(typeof val !== "undefined") _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val);
 		});
 
 		// collect tmpl
 		this.view_target.find('[data-ax-repeat]').each(function () {
-			var dom        = $(this), data_path = dom.attr("data-ax-repeat");
-			var child_tmpl = {};
-			// collect child tmpl
-
-			/*
-			 var child_list = dom.find('[data-ax-repeat-child]');
-			 child_list.each(function () {
-			 var child_dom = $(this);
-			 var p_el      = this, n_data_path = child_dom.attr("data-ax-repeat-child");
-			 while (p_el = p_el.parentNode) {
-			 if (p_el.getAttribute("data-ax-repeat")) {
-			 break;
-			 } else if (p_el.getAttribute("data-ax-repeat-child")) {
-			 n_data_path = p_el.getAttribute("data-ax-repeat-child") + "." + n_data_path;
-			 child_dom.attr("data-ax-repeat-child", n_data_path);
-			 break;
-			 }
-			 }
-			 child_tmpl[n_data_path] = {
-			 content: child_dom.html()
-			 };
-			 child_dom.empty();
-			 });
-			 */
-
+			var dom               = $(this), data_path = dom.attr("data-ax-repeat");
+			var child_tmpl        = {};
 			_this.tmpl[data_path] = {
 				container: dom, content: dom.html(), child_tmpl: child_tmpl
 			};
-			dom.empty();
+			dom.empty().show();
 		});
 
 		// binding event to els
@@ -104,7 +85,8 @@ var AXBinder = (function () {
 
 			if (this.type.toLowerCase() == "checkbox") {
 				if (get_type(origin_value) != "array") {
-					origin_value = [].concat(origin_value);
+					if(typeof origin_value === "undefined") origin_value = []
+					else origin_value = [].concat(origin_value);
 				}
 				i = origin_value.length, hasItem = false, checked = this.checked;
 				while (i--) {
@@ -144,7 +126,8 @@ var AXBinder = (function () {
 	};
 	
 	klass.prototype.set_els_value = function (el, tagname, type, value, data_path) {
-		value = [].concat(value);
+		if(typeof value === "undefined") value = [];
+		else value = [].concat(value);
 		var options, i;
 
 		if (tagname == "input") {
@@ -152,7 +135,7 @@ var AXBinder = (function () {
 				i           = value.length;
 				var checked = false;
 				while (i--) {
-					if (el.value === value[i].toString()) {
+					if (typeof value[i] !== "undefined" && el.value === value[i].toString()) {
 						checked = true;
 					}
 				}
@@ -165,16 +148,16 @@ var AXBinder = (function () {
 			while (i--) {
 				var vi = value.length;
 				while (vi--) {
-					if (options[i].value === value[vi].toString()) {
+					if (typeof value[i] !== "undefined" && options[i].value === value[vi].toString()) {
 						options[i].selected = true;
 					}
 				}
 			}
 			if (window.AXSelect) { // AXISJ 사용가능
-				$(el).bindSelectSetValue(value[value.length - 1]);
+				$(typeof value !== "undefined" && el).bindSelectSetValue(value[value.length - 1]);
 			}
 		} else if (tagname == "textarea") {
-			el.value = value.join('');
+			el.value = value.join('') || "";
 		}
 
 		if (data_path) {
@@ -218,7 +201,7 @@ var AXBinder = (function () {
 	};
 
 	klass.prototype.onchange = function (data_path, callBack) {
-		this.change_trigger[data_path] = callBack;
+		this.change_trigger[data_path || "*"] = callBack;
 		return this;
 	};
 
@@ -226,6 +209,9 @@ var AXBinder = (function () {
 		var callBack = this.change_trigger[data_path];
 		if (callBack) {
 			callBack.call(that, that);
+		}
+		if (data_path != "*" && this.change_trigger["*"]) {
+			this.change_trigger["*"].call(that, that);
 		}
 	};
 
@@ -265,6 +251,7 @@ var AXBinder = (function () {
 	klass.prototype.bind_event_tmpl = function (target, data_path) {
 		var _this = this, index = target.attr("data-ax-repeat-i");
 		var list  = (Function("", "return this." + data_path + ";")).call(this.model);
+
 		target.find('[data-ax-repeat-click]').bind("click", function (e) {
 			var dom = $(e.target), value = dom.attr("data-ax-repeat-click"), repeat_path = dom.attr("data-ax-repeat-path");
 
@@ -281,6 +268,66 @@ var AXBinder = (function () {
 
 			_this.click(data_path, that);
 		});
+
+		// apply data value to els
+		target.find('[data-ax-item-path]').each(function () {
+			var dom = $(this), item_path = dom.attr("data-ax-item-path"), mix_path = data_path + "[" + index + "]." + item_path + "", val;
+
+			try {
+				val = (Function("", "return this." + mix_path + ";")).call(_this.model);
+			} catch (e) {
+				/**
+				 * onerror를 선언 한 경우에만 에러 출력
+				 * */
+				if(_this.onerror) _this.onerror("not found target [model." + mix_path + "]");
+			}
+			if(typeof val !== "undefined") _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val);
+		});
+
+		// binding event to els
+		target.find('[data-ax-item-path]').bind("change", function () {
+			var i, hasItem = false, checked, new_value = [];
+			var dom        = $(this), item_path = dom.attr("data-ax-item-path"), mix_path = data_path + "[" + index + "]." + item_path + "", origin_value = (Function("", "return this." + mix_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
+
+			if (value_type == "object" || value_type == "array") {
+				setAllow = false;
+			}
+
+			if (this.type.toLowerCase() == "checkbox") {
+				if (get_type(origin_value) != "array") {
+					if(typeof origin_value === "undefined") origin_value = []
+					else origin_value = [].concat(origin_value);
+				}
+				i = origin_value.length, hasItem = false, checked = this.checked;
+				while (i--) {
+					if (origin_value[i] == this.value) {
+						hasItem = true;
+					}
+				}
+
+				if (checked) {
+					if (!hasItem) origin_value.push(this.value);
+				} else {
+					i = origin_value.length;
+					while (i--) {
+						if (origin_value[i] == this.value) {
+							//hasItemIndex = i;
+						} else {
+							new_value.push(origin_value[i]);
+						}
+					}
+					origin_value = new_value;
+				}
+
+				(Function("val", "this." + mix_path + " = val;")).call(_this.model, origin_value);
+				_this.change(mix_path, {el: this, tagname: this.tagName.toLowerCase(), value: origin_value});
+			} else {
+				if (setAllow) {
+					(Function("val", "this." + mix_path + " = val;")).call(_this.model, this.value);
+					_this.change(mix_path, {el: this, tagname: this.tagName.toLowerCase(), value: this.value});
+				}
+			}
+		});
 	};
 
 	klass.prototype.push = function (data_path, item) {
@@ -290,9 +337,12 @@ var AXBinder = (function () {
 		item.__i__  = list.length;
 		var fragdom = $(Mustache.render(tmpl.content, item));
 		fragdom.attr("data-ax-repeat-i", item.__i__);
+
+		(Function("val", "this." + data_path + ".push(val);")).call(this.model, item);
+
 		this.bind_event_tmpl(fragdom, data_path);
 		tmpl.container.append(fragdom);
-		(Function("val", "this." + data_path + ".push(val);")).call(this.model, item);
+		this.change("*");
 		return this;
 	};
 
@@ -303,6 +353,7 @@ var AXBinder = (function () {
 
 		this.tmpl[data_path].container.empty();
 		this.print_tmpl(data_path, this.tmpl[data_path]);
+		this.change("*");
 		return this;
 	};
 
@@ -313,6 +364,7 @@ var AXBinder = (function () {
 
 		this.tmpl[data_path].container.empty();
 		this.print_tmpl(data_path, this.tmpl[data_path]);
+		this.change("*");
 		return this;
 	};
 
