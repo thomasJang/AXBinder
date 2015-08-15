@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<meta charset="UTF-8">
+	<title></title>
+	<script src="plugins/jquery/jquery.min.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="http://cdn.axisj.com/axisj/ui/arongi/AXJ.min.css"/>
+	<script type="text/javascript" src="http://cdn.axisj.com/axisj/dist/AXJ.min.js"></script>
+
+
+	<script type="text/javascript" src="plugins/prettify/prettify.js"></script>
+	<link rel="stylesheet" type="text/css" href="plugins/prettify/github.css"/>
+
+	<script src="plugins/mustache/mustache.js"></script>
+	<script src="src/AXBinder.js"></script>
+	<script src="plugins/json-pretty.js"></script>
+
+</head>
+<body>
+
+<h1>AXBinder - simple & simple twoway binding javascript</h1>
+
+<table style="table-layout: fixed; width: 100%;" cellpadding="10">
+	<tr valign="top">
+		<td>
+
+			<div id="form-target">
+
+				<h3>Infomation</h3>
+
+				<table class="AXFormTable">
+					<colgroup>
+						<col width="100"/>
+						<col/>
+						<col width="100"/>
+						<col/>
+					</colgroup>
+					<tbody>
+					<tr>
+						<th>name</th>
+						<td colspan="3">
+							<input type="text" name="input-text" data-ax-path="name" class="AXInput"/>
+						</td>
+					</tr>
+					<tr>
+						<th>tel</th>
+						<td>
+							<input type="text" name="input-text" data-ax-path="tel" class="AXInput"/>
+						</td>
+						<th>email</th>
+						<td>
+							<input type="text" name="input-text" data-ax-path="email" class="AXInput"/>
+						</td>
+					</tr>
+					<tr>
+						<th>sex</th>
+						<td colspan="3">
+							<label>
+								<input type="radio" name="radio" data-ax-path="sex" value="M"/>
+								M
+							</label>
+							<label>
+								<input type="radio" name="radio" data-ax-path="sex" value="F"/>
+								F
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<th>character</th>
+						<td>
+							<select name="select" data-ax-path="character" class="AXSelect" id="select-target-01">
+								<option vlaue="wild">wild</option>
+								<option vlaue="shiny">shiny</option>
+								<option vlaue="nice">nice</option>
+							</select>
+						</td>
+						<th>hobby</th>
+						<td>
+							<label>
+								<input type="checkbox" name="checkbox" data-ax-path="hobby" value="sport"/>
+								sport
+							</label>
+							<label>
+								<input type="checkbox" name="checkbox" data-ax-path="hobby" value="movie"/>
+								movie
+							</label>
+							<label>
+								<input type="checkbox" name="checkbox" data-ax-path="hobby" value="music"/>
+								music
+							</label>
+							<label>
+								<input type="checkbox" name="checkbox" data-ax-path="hobby" value="play"/>
+								play
+							</label>
+							<label>
+								<input type="checkbox" name="checkbox" data-ax-path="hobby" value="work"/>
+								work
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<th>description</th>
+						<td colspan="3">
+							<textarea name="textarea" data-ax-path="description" class="AXTextarea"
+							          style="width:90%;height:100px;"></textarea>
+						</td>
+					</tr>
+					</tbody>
+				</table>
+
+				<h3>Familys &nbsp;&nbsp;
+					<button class="AXButton" id="ax-btn-list-add">ADD</button>
+				</h3>
+
+				<table cellpadding="0" cellspacing="0" class="AXGridTable">
+					<colgroup>
+						<col width="60"/>
+						<col width="80"/>
+						<col width="100"/>
+						<col width="100"/>
+						<col width="100"/>
+						<col/>
+					</colgroup>
+					<thead>
+					<tr>
+						<td></td>
+						<td>A</td>
+						<td>B</td>
+						<td>C</td>
+						<td>D</td>
+						<td>E</td>
+					</tr>
+					</thead>
+					<tbody data-ax-repeat="list" style="display: none;">
+					<tr>
+						<td align="center">
+
+							{{__i__}}
+
+							{{#__first__}}
+							<button class="AXButton" data-ax-repeat-click="add">+</button>
+							{{/__first__}}
+							{{^__first__}}
+							<button class="AXButton" data-ax-repeat-click="remove">-</button>
+							{{/__first__}}
+
+						</td>
+						<td>
+							<input type="text" name="input-text" id="name-{{__i__}}" data-ax-item-path="name" class="AXInput W60"/>
+						</td>
+						<td>
+							<label>
+								<input type="radio" name="radio" data-ax-item-path="sex" value="M"/>
+								Male
+							</label>
+							<br/>
+							<label>
+								<input type="radio" name="radio" data-ax-item-path="sex" value="F"/>
+								Female
+							</label>
+						</td>
+						<td>
+							<label>
+								<input type="checkbox" name="checkbox" data-ax-item-path="hobby" value="sport"/>
+								sport
+							</label>
+							<br/>
+							<label>
+								<input type="checkbox" name="checkbox" data-ax-item-path="hobby" value="movie"/>
+								movie
+							</label>
+							<br/>
+							<label>
+								<input type="checkbox" name="checkbox" data-ax-item-path="hobby" value="music"/>
+								music
+							</label>
+							<br/>
+							<label>
+								<input type="checkbox" name="checkbox" data-ax-item-path="hobby" value="play"/>
+								play
+							</label>
+							<br/>
+							<label>
+								<input type="checkbox" name="checkbox" data-ax-item-path="hobby" value="work"/>
+								work
+							</label>
+						</td>
+						<td>
+							<select name="select" data-ax-item-path="character" class="AXSelect">
+								<option vlaue="wild">wild</option>
+								<option vlaue="shiny">shiny</option>
+								<option vlaue="nice">nice</option>
+							</select>
+						</td>
+						<td>
+
+							{{#child}}
+							<input type="text" name="text" data-ax-item-path="child[{{__i__}}].name" value=""
+							       class="AXInput W50"/>
+							{{#__first__}}
+							<button class="AXButton" data-ax-repeat-child="child"
+							        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="add">+
+							</button>
+							{{/__first__}}
+							{{^__first__}}
+							<button class="AXButton" data-ax-repeat-child="child"
+							        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="remove">-
+							</button>
+							{{/__first__}}
+
+							{{/child}}
+
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+
+		</td>
+		<td>
+
+			<pre class="prettyprint linenums" id="json-preview"></pre>
+
+		</td>
+	</tr>
+</table>
+
+<script>
+	var obj = {
+		name       : "thomas",
+		tel        : "010-8881-9000",
+		email      : "tom@axisj.com",
+		sex        : "M",
+		character  : "wild",
+		hobby      : ["sport"],
+		description: "",
+		list       : [{
+			name       : "thomas",
+			tel        : "010-8881-9000",
+			email      : "tom@axisj.com",
+			sex        : "M",
+			character  : "wild",
+			hobby      : ["movie","play"],
+			description: "",
+			child      : [{name: "빈값"}]
+		}]
+	};
+
+	var fnObj = {
+		pageStart: function(){
+			this.form.init();
+		},
+		form: {
+			model: null,
+			init: function(){
+				var _this = this;
+				/**
+				 * AXBinder.set_model(Object, jQueryObject);
+				 * Object를 타겟 아이템 아래에 반영
+				 */
+				this.model = AXBinder.set_model(obj, $("#form-target"));
+				this.print_json();
+
+				/**
+				 * this.model.onchange(objectPath, Function);
+				 */
+				this.model.onchange("*", function(){
+					_this.print_json();
+				});
+
+				this.model.onclick("list", function(el){
+					var child_key = this.jquery.attr("data-ax-repeat-child");
+					if(child_key){
+						if(this.value == "add") {
+							this.item[child_key].push({name:""});
+						}else{
+							this.item[child_key].splice(this.item[child_key].length-1, 1);
+						}
+						_this.model.update(this.repeat_path, this.item_index, this.item);
+					}
+					else if(this.value == "add"){
+						_this.add();
+					}
+					else{
+						//console.log(this.repeat_path, this.item_index);
+						_this.remove(this.repeat_path, this.item_index);
+					}
+				});
+
+				$("#ax-btn-list-add").click(function(){
+					_this.add();
+				});
+			},
+			add: function(){
+				this.model.push("list", {name: "name:" + this.model.model.list.length, child:[]});
+			},
+			remove: function(repeat_path, item_index){
+				this.model.remove(repeat_path, item_index);
+			},
+			print_json: function(){
+				$("#json-preview").html( jsonPretty(this.model.get()) );
+				prettyPrint();
+			}
+		}
+	};
+
+	$(document.body).ready(function(){
+		fnObj.pageStart();
+	});
+
+</script>
+</body>
+</html>
