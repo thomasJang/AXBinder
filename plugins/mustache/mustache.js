@@ -507,7 +507,7 @@
 		if (isArray(value)) {
 			for (var j = 0, valueLength = value.length; j < valueLength; ++j) {
 				value[j].__i__ = j;
-				if(j===0) value[j].__first__ = true;
+				value[j].__first__ = (j===0);
 				buffer += this.renderTokens(token[4], context.push(value[j]), partials, originalTemplate);
 			}
 		} else if (typeof value === 'object' || typeof value === 'string' || typeof value === 'number') {

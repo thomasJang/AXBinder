@@ -78,13 +78,13 @@
 	<div data-ax-repeat="list">
 		<div style="border:1px solid #ccc; margin: 10px;">
 			{{#__first__}}
-			<button data-ax-repeat-add="{{__i__}}">+</button>
+			<button data-ax-repeat-click="add">+</button>
 			{{/__first__}}
 			{{^__first__}}
-			<button data-ax-repeat-remove="{{__i__}}">-</button>
+			<button data-ax-repeat-click="remove">-</button>
 			{{/__first__}}
 
-			<br/>
+			<hr/>
 
 			<span>#{{__i__}}.</span>
 			<span>{{a}}</span>
@@ -100,10 +100,10 @@
 				{{/b}}
 
 				{{#__first__}}
-				<button data-ax-repeat-child-add="{{__i__}}">+</button>
+				<button data-ax-repeat-child="c" data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="add">+</button>
 				{{/__first__}}
 				{{^__first__}}
-				<button data-ax-repeat-child-remove="{{__i__}}">-</button>
+				<button data-ax-repeat-child="c" data-ax-repeat-child-c-index="{{__i__}}"  data-ax-repeat-click="remove">-</button>
 				{{/__first__}}
 			{{/c}}
 
@@ -157,14 +157,34 @@
 	// print all
 	console.log(myModel.getAll());
 
-	myModel.set_onchange("v1", function (el) {
+	myModel.onchange("v1", function (el) {
 		// console.log(this);
 		console.log(el);
 	});
-
-	myModel.set_onchange("v6.c1.cc1", function (el) {
+	myModel.onchange("v6.c1.cc1", function (el) {
 		// console.log(this);
 		console.log(el);
+	});
+	myModel.onclick("list", function(el){
+		var child_key = this.jquery.attr("data-ax-repeat-child");
+
+		if(child_key){
+
+			if(this.value == "add") {
+				this.item[child_key].push({a: "aaa-added", b: "bbbb"});
+			}else{
+				this.item[child_key].splice(this.item[child_key].length-1, 1);
+			}
+			myModel.update(this.repeat_path, this.item_index, this.item);
+		}
+		else if(this.value == "add"){
+			myModel.push(this.repeat_path, {a:"addded item" + this.item_index});
+		}
+		else{
+			console.log(this.repeat_path, this.item_index);
+			myModel.remove(this.repeat_path, this.item_index);
+		}
+
 	});
 
 	function set_value(k, v) {
@@ -179,13 +199,13 @@
 	}
 
 	function push_item() {
-		myModel.push("v7.list", {a: "장서우"});
+		myModel.push("list", {a: "장서우"});
 	}
 	function remove_item() {
-		myModel.remove("v7.list");
+		myModel.remove("list");
 	}
 	function update_item() {
-		myModel.update("v7.list", 0, {a: "장서우"});
+		myModel.update("list", 0, {a: "장서우"});
 	}
 
 	// todo : repeat 안에서의 element data binding

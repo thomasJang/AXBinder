@@ -28,10 +28,11 @@ var AXBinder = (function () {
 	}
 
 	var klass = function () {
-		this.model       = {};
-		this.tmpl        = {};
-		this.view_target = null;
-		this.trigger     = {};
+		this.model          = {};
+		this.tmpl           = {};
+		this.view_target    = null;
+		this.change_trigger = {};
+		this.click_trigger  = {};
 	};
 
 	klass.prototype.set_model = function (model, view_target) {
@@ -66,25 +67,25 @@ var AXBinder = (function () {
 			// collect child tmpl
 
 			/*
-			var child_list = dom.find('[data-ax-repeat-child]');
-			child_list.each(function () {
-				var child_dom = $(this);
-				var p_el      = this, n_data_path = child_dom.attr("data-ax-repeat-child");
-				while (p_el = p_el.parentNode) {
-					if (p_el.getAttribute("data-ax-repeat")) {
-						break;
-					} else if (p_el.getAttribute("data-ax-repeat-child")) {
-						n_data_path = p_el.getAttribute("data-ax-repeat-child") + "." + n_data_path;
-						child_dom.attr("data-ax-repeat-child", n_data_path);
-						break;
-					}
-				}
-				child_tmpl[n_data_path] = {
-					content: child_dom.html()
-				};
-				child_dom.empty();
-			});
-			*/
+			 var child_list = dom.find('[data-ax-repeat-child]');
+			 child_list.each(function () {
+			 var child_dom = $(this);
+			 var p_el      = this, n_data_path = child_dom.attr("data-ax-repeat-child");
+			 while (p_el = p_el.parentNode) {
+			 if (p_el.getAttribute("data-ax-repeat")) {
+			 break;
+			 } else if (p_el.getAttribute("data-ax-repeat-child")) {
+			 n_data_path = p_el.getAttribute("data-ax-repeat-child") + "." + n_data_path;
+			 child_dom.attr("data-ax-repeat-child", n_data_path);
+			 break;
+			 }
+			 }
+			 child_tmpl[n_data_path] = {
+			 content: child_dom.html()
+			 };
+			 child_dom.empty();
+			 });
+			 */
 
 			_this.tmpl[data_path] = {
 				container: dom, content: dom.html(), child_tmpl: child_tmpl
@@ -216,13 +217,25 @@ var AXBinder = (function () {
 		return this.get();
 	};
 
-	klass.prototype.set_onchange = function (data_path, callBack) {
-		this.trigger[data_path] = callBack;
+	klass.prototype.onchange = function (data_path, callBack) {
+		this.change_trigger[data_path] = callBack;
 		return this;
 	};
 
 	klass.prototype.change = function (data_path, that) {
-		var callBack = this.trigger[data_path];
+		var callBack = this.change_trigger[data_path];
+		if (callBack) {
+			callBack.call(that, that);
+		}
+	};
+
+	klass.prototype.onclick = function (data_path, callBack) {
+		this.click_trigger[data_path] = callBack;
+		return this;
+	};
+
+	klass.prototype.click = function (data_path, that) {
+		var callBack = this.click_trigger[data_path];
 		if (callBack) {
 			callBack.call(that, that);
 		}
@@ -236,42 +249,51 @@ var AXBinder = (function () {
 		//console.log(this.model[data_path]);
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
 		if (list && get_type(list) == "array") {
-
 			for (var i = 0, l = list.length; i < l; i++) {
-				var item          = list[i];
+				var item   = list[i];
 				item.__i__ = i;
-				if(i === 0) item.__first__ = true;
+				if (i === 0) item.__first__ = true;
 
 				var fragdom = $(Mustache.render(tmpl.content, item));
-				/*
-				if (tmpl.child_tmpl) {
-					for (var k in tmpl.child_tmpl) {
-						if(item[k]) {
-							for (var ii = 0, il = item[k].length; ii < il; ii++) {
-								var _item          = item[k][ii];
-								_item["__i__"] = i;
-								fragdom.find('[data-ax-repeat-child="' + k + '"]').html(Mustache.render(tmpl.child_tmpl[k].content, _item));
-							}
-						}
-					}
-				}
-				*/
+				fragdom.attr("data-ax-repeat-i", item.__i__);
+				this.bind_event_tmpl(fragdom, data_path);
 				tmpl.container.append(fragdom);
 			}
-
-			tmpl.container.bind("change", function(){
-
-			});
 		}
+	};
+
+	klass.prototype.bind_event_tmpl = function (target, data_path) {
+		var _this = this, index = target.attr("data-ax-repeat-i");
+		var list  = (Function("", "return this." + data_path + ";")).call(this.model);
+		target.find('[data-ax-repeat-click]').bind("click", function (e) {
+			var dom = $(e.target), value = dom.attr("data-ax-repeat-click"), repeat_path = dom.attr("data-ax-repeat-path");
+
+			var that = {
+				el         : e.target,
+				jquery     : dom,
+				tagname    : e.target.tagName.toLowerCase(),
+				value      : value,
+				repeat_path: data_path,
+				item       : list[index],
+				item_index : index,
+				item_path  : data_path + "[" + index + "]"
+			};
+
+			_this.click(data_path, that);
+		});
 	};
 
 	klass.prototype.push = function (data_path, item) {
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
 		var tmpl = this.tmpl[data_path];
 
-		item["__i__"] = list.length;
-		tmpl.container.append(Mustache.render(tmpl.content, item));
+		item.__i__  = list.length;
+		var fragdom = $(Mustache.render(tmpl.content, item));
+		fragdom.attr("data-ax-repeat-i", item.__i__);
+		this.bind_event_tmpl(fragdom, data_path);
+		tmpl.container.append(fragdom);
 		(Function("val", "this." + data_path + ".push(val);")).call(this.model, item);
+		return this;
 	};
 
 	klass.prototype.remove = function (data_path, index) {
@@ -281,10 +303,17 @@ var AXBinder = (function () {
 
 		this.tmpl[data_path].container.empty();
 		this.print_tmpl(data_path, this.tmpl[data_path]);
+		return this;
 	};
 
-	klass.prototype.update = function () {
+	klass.prototype.update = function (data_path, index, item) {
+		var list = (Function("", "return this." + data_path + ";")).call(this.model);
+		if (typeof index == "undefined") return this;
+		list.splice(index, 1, item);
 
+		this.tmpl[data_path].container.empty();
+		this.print_tmpl(data_path, this.tmpl[data_path]);
+		return this;
 	};
 
 	return new klass();
