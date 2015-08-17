@@ -98,7 +98,7 @@ var AXBinder = (function () {
 
 			if (this.type.toLowerCase() == "checkbox") {
 				if (get_type(origin_value) != "array") {
-					if (typeof origin_value === "undefined") origin_value = [];
+					if (typeof origin_value === "undefined" || origin_value == "") origin_value = [];
 					else origin_value = [].concat(origin_value);
 				}
 				i = origin_value.length, hasItem = false, checked = this.checked;
@@ -318,7 +318,7 @@ var AXBinder = (function () {
 
 			if (this.type.toLowerCase() == "checkbox") {
 				if (get_type(origin_value) != "array") {
-					if (typeof origin_value === "undefined") origin_value = []; else origin_value = [].concat(origin_value);
+					if (typeof origin_value === "undefined" || origin_value == "") origin_value = []; else origin_value = [].concat(origin_value);
 				}
 				i = origin_value.length, hasItem = false, checked = this.checked;
 				while (i--) {
@@ -369,14 +369,15 @@ var AXBinder = (function () {
 		item.__ADDED__ = true;
 
 		// 추가되는 하위 아이템 중에 object array를 찾아 __ADDED__ 값을 추가해줍니다.
-		for (var k in item) {
-			if (get_type(item[k]) == "array" && item[k][0] && get_type(item[k][0]) == "object") {
-				for (var ii = 0, il = item[k].length; ii < il; ii++) {
-					item[k][ii].__ADDED__ = true;
-				}
-			}
-		}
-
+		/*
+		 for (var k in item) {
+		 if (get_type(item[k]) == "array" && item[k][0] && get_type(item[k][0]) == "object") {
+		 for (var ii = 0, il = item[k].length; ii < il; ii++) {
+		 item[k][ii].__ADDED__ = true;
+		 }
+		 }
+		 }
+		 */
 		var fragdom = $(Mustache.render(tmpl.content, item));
 		fragdom.attr("data-ax-repeat-i", item.__i__);
 
@@ -435,8 +436,10 @@ var AXBinder = (function () {
 	};
 
 	klass.prototype.child_update = function (data_path, index, child_path, child_index, child_item) {
-		//MODIFIED
-
+		var _list       = (Function("", "return this." + data_path + ";")).call(this.model);
+		var list        = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
+		list[child_index] = child_item;
+		this.update(data_path, index, _list[index]);
 	};
 
 	return new klass();
