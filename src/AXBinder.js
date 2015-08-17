@@ -272,20 +272,24 @@ var AXBinder = (function () {
 		var list  = (Function("", "return this." + data_path + ";")).call(this.model);
 
 		target.find('[data-ax-repeat-click]').unbind("click.axbinder").bind("click.axbinder", function (e) {
-			var dom = $(e.target), value = dom.attr("data-ax-repeat-click"), repeat_path = dom.attr("data-ax-repeat-path");
+			var target = axf.get_event_target(e.target, function(el){
+				return el.getAttribute("data-ax-repeat-click");
+			});
+			if(target){
+				var dom = $(target), value = dom.attr("data-ax-repeat-click"), repeat_path = dom.attr("data-ax-repeat-path");
 
-			var that = {
-				el         : e.target,
-				jquery     : dom,
-				tagname    : e.target.tagName.toLowerCase(),
-				value      : value,
-				repeat_path: data_path,
-				item       : list[index],
-				item_index : index,
-				item_path  : data_path + "[" + index + "]"
-			};
-
-			_this.click(data_path, that);
+				var that = {
+					el         : target,
+					jquery     : dom,
+					tagname    : target.tagName.toLowerCase(),
+					value      : value,
+					repeat_path: data_path,
+					item       : list[index],
+					item_index : index,
+					item_path  : data_path + "[" + index + "]"
+				};
+				_this.click(data_path, that);
+			}
 		});
 
 		// apply data value to els
