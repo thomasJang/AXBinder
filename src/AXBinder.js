@@ -148,7 +148,7 @@ var AXBinder = (function () {
 			while (i--) {
 				var vi = value.length;
 				while (vi--) {
-					if (typeof value[i] !== "undefined" && options[i].value === value[vi].toString()) {
+					if (typeof value[vi] !== "undefined" && options[i].value === value[vi].toString()) {
 						options[i].selected = true;
 					}
 				}
