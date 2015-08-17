@@ -48,12 +48,20 @@ http://thomasjang.github.io/AXBinder/
 </div>
 ```
 
-```javascript
+```js
 var obj = {
 	name: "Thomas",
 	email: "tom@axisj.com
 }
 var myModel = AXBinder.set_model(obj, $("#form-target"));
+```
+
+### AXBinder.update_model(Object) : Model
+이미 바인딩되어 있는 바인더에 오브젝트를 변경할 때에 사용합니다.
+```js
+if(window.myModel){
+	myModel.update_model(obj);
+}
 ```
 
 ### Model.set(data_path, value) : Model

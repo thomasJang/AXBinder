@@ -44,7 +44,13 @@ var AXBinder = (function () {
 		return this;
 	};
 
-	klass.prototype._binding = function () {
+	klass.prototype.update_model = function (model) {
+		this.model = model;
+		this._binding("update");
+		return this;
+	};
+
+	klass.prototype._binding = function (isupdate) {
 		var _this = this;
 
 		// apply data value to els
@@ -58,24 +64,31 @@ var AXBinder = (function () {
 				/**
 				 * onerror를 선언 한 경우에만 에러 출력
 				 * */
-				if(_this.onerror) _this.onerror("not found target [model." + data_path + "]");
+				if (_this.onerror) _this.onerror("not found target [model." + data_path + "]");
 			}
 
-			if(typeof val !== "undefined") _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val);
+			if (typeof val !== "undefined") _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val);
 		});
 
-		// collect tmpl
-		this.view_target.find('[data-ax-repeat]').each(function () {
-			var dom               = $(this), data_path = dom.attr("data-ax-repeat");
-			var child_tmpl        = {};
-			_this.tmpl[data_path] = {
-				container: dom, content: dom.html(), child_tmpl: child_tmpl
-			};
-			dom.empty().show();
-		});
+		if (typeof isupdate == "undefined") {
+			// collect tmpl
+			this.view_target.find('[data-ax-repeat]').each(function () {
+				var dom               = $(this), data_path = dom.attr("data-ax-repeat");
+				var child_tmpl        = {};
+				_this.tmpl[data_path] = {
+					container: dom, content: dom.html(), child_tmpl: child_tmpl
+				};
+				dom.empty().show();
+			});
+		} else {
+			this.view_target.find('[data-ax-repeat]').each(function () {
+				var dom = $(this);
+				dom.empty().show();
+			});
+		}
 
 		// binding event to els
-		this.view_target.find('[data-ax-path]').bind("change", function () {
+		this.view_target.find('[data-ax-path]').unbind("change.axbinder").bind("change.axbinder", function () {
 			var dom        = $(this), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
 			var i, hasItem = false, checked, new_value = [];
 
@@ -85,7 +98,7 @@ var AXBinder = (function () {
 
 			if (this.type.toLowerCase() == "checkbox") {
 				if (get_type(origin_value) != "array") {
-					if(typeof origin_value === "undefined") origin_value = []
+					if (typeof origin_value === "undefined") origin_value = [];
 					else origin_value = [].concat(origin_value);
 				}
 				i = origin_value.length, hasItem = false, checked = this.checked;
@@ -110,11 +123,21 @@ var AXBinder = (function () {
 				}
 
 				(Function("val", "this." + data_path + " = val;")).call(_this.model, origin_value);
-				_this.change(data_path, {el: this, jquery: dom, tagname: this.tagName.toLowerCase(), value: origin_value});
+				_this.change(data_path, {
+					el     : this,
+					jquery : dom,
+					tagname: this.tagName.toLowerCase(),
+					value  : origin_value
+				});
 			} else {
 				if (setAllow) {
 					(Function("val", "this." + data_path + " = val;")).call(_this.model, this.value);
-					_this.change(data_path, {el: this, jquery: dom, tagname: this.tagName.toLowerCase(), value: this.value});
+					_this.change(data_path, {
+						el     : this,
+						jquery : dom,
+						tagname: this.tagName.toLowerCase(),
+						value  : this.value
+					});
 				}
 			}
 		});
@@ -126,8 +149,7 @@ var AXBinder = (function () {
 	};
 	
 	klass.prototype.set_els_value = function (el, tagname, type, value, data_path) {
-		if(typeof value === "undefined") value = [];
-		else value = [].concat(value);
+		if (typeof value === "undefined") value = []; else value = [].concat(value);
 		var options, i;
 
 		if (tagname == "input") {
@@ -235,7 +257,7 @@ var AXBinder = (function () {
 				var item   = list[i];
 				item.__i__ = i;
 				if (i === 0) item.__first__ = true;
-				if(!item.__DELETED__) {
+				if (!item.__DELETED__) {
 					var fragdom = $(Mustache.render(tmpl.content, item));
 					fragdom.attr("data-ax-repeat-i", item.__i__);
 					this.bind_event_tmpl(fragdom, data_path);
@@ -249,7 +271,7 @@ var AXBinder = (function () {
 		var _this = this, index = target.attr("data-ax-repeat-i");
 		var list  = (Function("", "return this." + data_path + ";")).call(this.model);
 
-		target.find('[data-ax-repeat-click]').bind("click", function (e) {
+		target.find('[data-ax-repeat-click]').unbind("click.axbinder").bind("click.axbinder", function (e) {
 			var dom = $(e.target), value = dom.attr("data-ax-repeat-click"), repeat_path = dom.attr("data-ax-repeat-path");
 
 			var that = {
@@ -276,13 +298,13 @@ var AXBinder = (function () {
 				/**
 				 * onerror를 선언 한 경우에만 에러 출력
 				 * */
-				if(_this.onerror) _this.onerror("not found target [model." + mix_path + "]");
+				if (_this.onerror) _this.onerror("not found target [model." + mix_path + "]");
 			}
-			if(typeof val !== "undefined") _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val);
+			if (typeof val !== "undefined") _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val);
 		});
 
 		// binding event to els
-		target.find('[data-ax-item-path]').bind("change", function () {
+		target.find('[data-ax-item-path]').unbind("change.axbinder").bind("change.axbinder", function () {
 			var i, hasItem = false, checked, new_value = [];
 			var dom        = $(this), item_path = dom.attr("data-ax-item-path"), mix_path = data_path + "[" + index + "]." + item_path + "", origin_value = (Function("", "return this." + mix_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
 
@@ -292,8 +314,7 @@ var AXBinder = (function () {
 
 			if (this.type.toLowerCase() == "checkbox") {
 				if (get_type(origin_value) != "array") {
-					if(typeof origin_value === "undefined") origin_value = []
-					else origin_value = [].concat(origin_value);
+					if (typeof origin_value === "undefined") origin_value = []; else origin_value = [].concat(origin_value);
 				}
 				i = origin_value.length, hasItem = false, checked = this.checked;
 				while (i--) {
@@ -317,27 +338,37 @@ var AXBinder = (function () {
 				}
 
 				(Function("val", "this." + mix_path + " = val;")).call(_this.model, origin_value);
-				_this.change(mix_path, {el: this, jquery: dom, tagname: this.tagName.toLowerCase(), value: origin_value});
+				_this.change(mix_path, {
+					el     : this,
+					jquery : dom,
+					tagname: this.tagName.toLowerCase(),
+					value  : origin_value
+				});
 			} else {
 				if (setAllow) {
 					(Function("val", "this." + mix_path + " = val;")).call(_this.model, this.value);
-					_this.change(mix_path, {el: this, jquery: dom, tagname: this.tagName.toLowerCase(), value: this.value});
+					_this.change(mix_path, {
+						el     : this,
+						jquery : dom,
+						tagname: this.tagName.toLowerCase(),
+						value  : this.value
+					});
 				}
 			}
 		});
 	};
 
 	klass.prototype.add = function (data_path, item) {
-		var list = (Function("", "return this." + data_path + ";")).call(this.model);
-		var tmpl = this.tmpl[data_path];
-		item.__i__ = list.length;
+		var list       = (Function("", "return this." + data_path + ";")).call(this.model);
+		var tmpl       = this.tmpl[data_path];
+		item.__i__     = list.length;
 		item.__ADDED__ = true;
 
 		// 추가되는 하위 아이템 중에 object array를 찾아 __ADDED__ 값을 추가해줍니다.
-		for(var k in item){
-			if(get_type(item[k]) == "array" && item[k][0] && get_type(item[k][0]) == "object"){
-				for(var ii=0, il=item[k].length;ii<il;ii++){
-					 item[k][ii].__ADDED__ = true;
+		for (var k in item) {
+			if (get_type(item[k]) == "array" && item[k][0] && get_type(item[k][0]) == "object") {
+				for (var ii = 0, il = item[k].length; ii < il; ii++) {
+					item[k][ii].__ADDED__ = true;
 				}
 			}
 		}
@@ -357,10 +388,9 @@ var AXBinder = (function () {
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
 		if (typeof index == "undefined") index = list.length - 1;
 		var remove_item = list[index];
-		if(remove_item.__ADDED__){
+		if (remove_item.__ADDED__) {
 			list.splice(index, 1);
-		}
-		else{
+		} else {
 			list[index].__DELETED__ = true;
 		}
 		this.tmpl[data_path].container.empty();
@@ -381,21 +411,20 @@ var AXBinder = (function () {
 	};
 
 	klass.prototype.child_add = function (data_path, index, child_path, child_item) {
-		var _list = (Function("", "return this." + data_path + ";")).call(this.model);
-		var list = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
+		var _list            = (Function("", "return this." + data_path + ";")).call(this.model);
+		var list             = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
 		child_item.__ADDED__ = true;
 		list.push(child_item);
 		this.update(data_path, index, _list[index]);
 	};
 
 	klass.prototype.child_remove = function (data_path, index, child_path, child_index) {
-		var _list = (Function("", "return this." + data_path + ";")).call(this.model);
-		var list = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
+		var _list       = (Function("", "return this." + data_path + ";")).call(this.model);
+		var list        = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
 		var remove_item = list[child_index];
-		if(remove_item.__ADDED__){
+		if (remove_item.__ADDED__) {
 			list.splice(child_index, 1);
-		}
-		else{
+		} else {
 			list[child_index].__DELETED__ = true;
 		}
 		this.update(data_path, index, _list[index]);
