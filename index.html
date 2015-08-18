@@ -133,94 +133,96 @@
 						<td>E</td>
 					</tr>
 					</thead>
-					<tbody data-ax-repeat="list" style="display: none;">
-					<tr>
-						<td align="center">
+					<tbody data-ax-repeat="list">
+					<script type="text/html">
+						<tr>
+							<td align="center">
 
-							{{__i__}}
+								{{__i__}}
 
-							{{#__first__}}
-							<button class="AXButton" data-ax-repeat-click="add">+</button>
-							{{/__first__}}
-							{{^__first__}}
-							<button class="AXButton" data-ax-repeat-click="remove">-</button>
-							{{/__first__}}
+								{{#__first__}}
+								<button class="AXButton" data-ax-repeat-click="add">+</button>
+								{{/__first__}}
+								{{^__first__}}
+								<button class="AXButton" data-ax-repeat-click="remove">-</button>
+								{{/__first__}}
 
-						</td>
-						<td>
-							<input type="text" name="input-text" id="name-{{__i__}}" data-ax-item-path="name"
-							       class="AXInput W60"/>
-						</td>
-						<td>
-							<label>
-								<input type="radio" name="radio-{{__i__}}" data-ax-item-path="sex" value="M"/>
-								Male
-							</label>
-							<br/>
-							<label>
-								<input type="radio" name="radio-{{__i__}}" data-ax-item-path="sex" value="F"/>
-								Female
-							</label>
-						</td>
-						<td>
-							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
-								       value="sport"/>
-								sport
-							</label>
-							<br/>
-							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
-								       value="movie"/>
-								movie
-							</label>
-							<br/>
-							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
-								       value="music"/>
-								music
-							</label>
-							<br/>
-							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
-								       value="play"/>
-								play
-							</label>
-							<br/>
-							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
-								       value="work"/>
-								work
-							</label>
-						</td>
-						<td>
-							<select name="select" data-ax-item-path="character" class="AXSelect">
-								<option value="wild">wild</option>
-								<option value="shiny">shiny</option>
-								<option value="nice">nice</option>
-							</select>
-						</td>
-						<td>
+							</td>
+							<td>
+								<input type="text" name="input-text" id="name-{{__i__}}" data-ax-item-path="name"
+								       class="AXInput W60"/>
+							</td>
+							<td>
+								<label>
+									<input type="radio" name="radio-{{__i__}}" data-ax-item-path="sex" value="M"/>
+									Male
+								</label>
+								<br/>
+								<label>
+									<input type="radio" name="radio-{{__i__}}" data-ax-item-path="sex" value="F"/>
+									Female
+								</label>
+							</td>
+							<td>
+								<label>
+									<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+									       value="sport"/>
+									sport
+								</label>
+								<br/>
+								<label>
+									<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+									       value="movie"/>
+									movie
+								</label>
+								<br/>
+								<label>
+									<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+									       value="music"/>
+									music
+								</label>
+								<br/>
+								<label>
+									<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+									       value="play"/>
+									play
+								</label>
+								<br/>
+								<label>
+									<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+									       value="work"/>
+									work
+								</label>
+							</td>
+							<td>
+								<select name="select" data-ax-item-path="character" class="AXSelect">
+									<option value="wild">wild</option>
+									<option value="shiny">shiny</option>
+									<option value="nice">nice</option>
+								</select>
+							</td>
+							<td>
 
-							{{#child}}
-							{{^__DELETED__}}
-							<input type="text" name="text" data-ax-item-path="child[{{__i__}}].name" value=""
-							       class="AXInput W50"/>
-							{{#__first__}}
-							<button class="AXButton" data-ax-repeat-child="child"
-							        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="add">+
-							</button>
-							{{/__first__}}
-							{{^__first__}}
-							<button class="AXButton" data-ax-repeat-child="child"
-							        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="remove">-
-							</button>
-							{{/__first__}}
-							{{/__DELETED__}}
-							{{/child}}
+								{{#child}}
+								{{^__DELETED__}}
+								<input type="text" name="text" data-ax-item-path="child[{{__i__}}].name" value=""
+								       class="AXInput W50"/>
+								{{#__first__}}
+								<button class="AXButton" data-ax-repeat-child="child"
+								        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="add">+
+								</button>
+								{{/__first__}}
+								{{^__first__}}
+								<button class="AXButton" data-ax-repeat-child="child"
+								        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="remove">-
+								</button>
+								{{/__first__}}
+								{{/__DELETED__}}
+								{{/child}}
 
-						</td>
-					</tr>
+							</td>
+						</tr>
+					</script>
 					</tbody>
 				</table>
 			</div>

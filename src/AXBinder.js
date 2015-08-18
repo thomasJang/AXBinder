@@ -1,3 +1,9 @@
+/**
+ * AXBinder
+ * 0.1
+ *
+ */
+
 var AXBinder = (function () {
 	var _toString = Object.prototype.toString;
 
@@ -74,11 +80,11 @@ var AXBinder = (function () {
 			// collect tmpl
 			this.view_target.find('[data-ax-repeat]').each(function () {
 				var dom               = $(this), data_path = dom.attr("data-ax-repeat");
-				var child_tmpl        = {};
 				_this.tmpl[data_path] = {
-					container: dom, content: dom.html(), child_tmpl: child_tmpl
+					container: dom, content: dom.find("script").html()
 				};
-				dom.empty().show();
+				//dom.empty().show();
+				dom.empty();
 			});
 		} else {
 			this.view_target.find('[data-ax-repeat]').each(function () {
