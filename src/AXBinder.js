@@ -104,7 +104,7 @@ var AXBinder = (function () {
 
 			if (this.type.toLowerCase() == "checkbox") {
 				// 동일한 체크박스가 여러개 인지 판단합니다.
-				if(_this.view_target.find('[data-ax-path="'+ data_path +'"]').length > 1){
+				if (_this.view_target.find('[data-ax-path="' + data_path + '"]').length > 1) {
 					if (get_type(origin_value) != "array") {
 						if (typeof origin_value === "undefined" || origin_value == "") origin_value = []; else origin_value = [].concat(origin_value);
 					}
@@ -128,13 +128,8 @@ var AXBinder = (function () {
 						}
 						origin_value = new_value;
 					}
-				}else{
+				} else {
 					origin_value = (this.checked) ? this.value : "";
-					/*
-					 if (get_type(origin_value) != "array") {
-					 if (typeof origin_value === "undefined" || origin_value == "") origin_value = "";
-					 }
-					 */
 				}
 
 				(Function("val", "this." + data_path + " = val;")).call(_this.model, origin_value);
@@ -328,28 +323,32 @@ var AXBinder = (function () {
 			}
 
 			if (this.type.toLowerCase() == "checkbox") {
-				if (get_type(origin_value) != "array") {
-					if (typeof origin_value === "undefined" || origin_value == "") origin_value = []; else origin_value = [].concat(origin_value);
-				}
-				i = origin_value.length, hasItem = false, checked = this.checked;
-				while (i--) {
-					if (origin_value[i] == this.value) {
-						hasItem = true;
+				if (target.find('[data-ax-item-path="' + item_path + '"]').length > 1) {
+					if (get_type(origin_value) != "array") {
+						if (typeof origin_value === "undefined" || origin_value == "") origin_value = []; else origin_value = [].concat(origin_value);
 					}
-				}
-
-				if (checked) {
-					if (!hasItem) origin_value.push(this.value);
-				} else {
-					i = origin_value.length;
+					i = origin_value.length, hasItem = false, checked = this.checked;
 					while (i--) {
 						if (origin_value[i] == this.value) {
-							//hasItemIndex = i;
-						} else {
-							new_value.push(origin_value[i]);
+							hasItem = true;
 						}
 					}
-					origin_value = new_value;
+
+					if (checked) {
+						if (!hasItem) origin_value.push(this.value);
+					} else {
+						i = origin_value.length;
+						while (i--) {
+							if (origin_value[i] == this.value) {
+								//hasItemIndex = i;
+							} else {
+								new_value.push(origin_value[i]);
+							}
+						}
+						origin_value = new_value;
+					}
+				} else {
+					origin_value = (this.checked) ? this.value : "";
 				}
 
 				(Function("val", "this." + mix_path + " = val;")).call(_this.model, origin_value);
