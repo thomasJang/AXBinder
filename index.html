@@ -17,16 +17,23 @@
 	<script src="src/AXBinder.js"></script>
 	<script src="plugins/json-pretty.js"></script>
 
+	<style>
+	html, body{
+		width:100%;
+		height: 100%;
+		overflow: hidden;
+	}
+	</style>
 </head>
 <body>
-
-<h1>AXBinder - simple & simple twoway binding javascript</h1>
-<a href="https://github.com/thomasJang/AXBinder">https://github.com/thomasJang/AXBinder</a>
-<table style="table-layout: fixed; width: 100%;" cellpadding="10">
+<div style="position: absolute;left:10px;top:30px;">
+	<h2 style="margin: 0px;padding:0px">AXBinder - simple & simple twoway binding javascript</h2>
+	<a href="https://github.com/thomasJang/AXBinder">https://github.com/axisj/AXBinder</a>
+</div>
+<table style="table-layout: fixed; width: 100%;height:100%;border-collapse: collapse;" cellspacing="0" cellpadding="0">
 	<tr valign="top">
-		<td>
-
-			<div id="form-target">
+		<td style="padding-top:80px;">
+			<div id="form-target" style="overflow: auto;height:100%;">
 
 				<h3>Infomation</h3>
 
@@ -226,25 +233,24 @@
 					</tbody>
 				</table>
 			</div>
-
 		</td>
-		<td>
-
+		<td style="padding-top:80px;padding-left:15px;padding-right:10px;">
+			<div  style="overflow: auto; height:100%;">
 			<pre class="prettyprint linenums" id="json-preview"></pre>
-
+			</div>
 		</td>
 	</tr>
 </table>
 
 <script>
 	var obj = {
-		name       : "thomas",
-		tel        : "010-8881-9000",
+		name       : "Thomas Jang",
+		tel        : "010-8881-9137",
 		email      : "tom@axisj.com",
 		sex        : "M",
 		character  : "wild",
 		hobby      : ["sport"],
-		description: "",
+		description: "http://www.axisj.com",
 		list       : [{
 			name       : "thomas",
 			tel        : "010-8881-9000",
