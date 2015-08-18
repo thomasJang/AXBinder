@@ -73,7 +73,7 @@ var AXBinder = (function () {
 				if (_this.onerror) _this.onerror("not found target [model." + data_path + "]");
 			}
 
-			if (typeof val !== "undefined") _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val);
+			_this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val||"");
 		});
 
 		if (typeof isupdate == "undefined") {
