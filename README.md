@@ -127,7 +127,7 @@ data-ax-repeat="list" 하위 아이템을 제거합니다. 단! 이 때 __ADDED_
 ```js
 myModel.remove("list", 0);
 ```
-### Model.update(repeat_path, index, Object) : Model
+### Model.update(repeat_path[, index, Object]) : Model
 data-ax-repeat="list" 하위 아이템을 교체합니다.
 ```js
 myModel.update("list", 0, {a:1});
