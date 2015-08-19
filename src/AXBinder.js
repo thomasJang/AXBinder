@@ -105,6 +105,7 @@ var AXBinder = (function () {
 			if (this.type.toLowerCase() == "checkbox") {
 				// 동일한 체크박스가 여러개 인지 판단합니다.
 				if (_this.view_target.find('[data-ax-path="' + data_path + '"]').length > 1) {
+
 					if (get_type(origin_value) != "array") {
 						if (typeof origin_value === "undefined" || origin_value == "") origin_value = []; else origin_value = [].concat(origin_value);
 					}
@@ -410,8 +411,7 @@ var AXBinder = (function () {
 
 	klass.prototype.update = function (data_path, index, item) {
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
-		if (typeof index == "undefined") return this;
-		list.splice(index, 1, item);
+		if(typeof index != "undefined" && item) list.splice(index, 1, item);
 
 		this.tmpl[data_path].container.empty();
 		this.print_tmpl(data_path, this.tmpl[data_path]);
