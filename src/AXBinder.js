@@ -39,6 +39,7 @@ var AXBinder = (function () {
 		this.view_target    = null;
 		this.change_trigger = {};
 		this.click_trigger  = {};
+		this.update_trigger = {};
 		this.onerror        = null;
 	};
 
@@ -79,10 +80,18 @@ var AXBinder = (function () {
 		if (typeof isupdate == "undefined") {
 			// collect tmpl
 			this.view_target.find('[data-ax-repeat]').each(function () {
-				var dom               = $(this), data_path = dom.attr("data-ax-repeat");
-				_this.tmpl[data_path] = {
-					container: dom, content: dom.find("script").html()
-				};
+				var dom = $(this), data_path = dom.attr("data-ax-repeat"), repeat_idx = dom.attr("data-ax-repeat-idx");
+
+				if (typeof _this.tmpl[data_path] == "undefined") _this.tmpl[data_path] = {};
+				if (typeof repeat_idx != "undefined") {
+					_this.tmpl[data_path][repeat_idx] = {
+						container: dom, content: dom.find("script").html()
+					};
+				} else {
+					_this.tmpl[data_path]["0"] = {
+						container: dom, content: dom.find("script").html()
+					};
+				}
 				//dom.empty().show();
 				dom.empty();
 			});
@@ -149,7 +158,10 @@ var AXBinder = (function () {
 
 		//_this.tmpl
 		for (var tk in _this.tmpl) {
-			this.print_tmpl(tk, _this.tmpl[tk], "isInit");
+			for (var ix in _this.tmpl[tk]) {
+				//console.log(_this.tmpl[tk][ix].content);
+				this.print_tmpl(tk, _this.tmpl[tk][ix], "isInit");
+			}
 		}
 	};
 	
@@ -256,8 +268,13 @@ var AXBinder = (function () {
 
 	};
 
+	klass.prototype.onupdate = function (data_path, callBack) {
+		this.update_trigger[data_path] = callBack;
+
+		return this;
+	};
+
 	klass.prototype.print_tmpl = function (data_path, tmpl, isInit) {
-		//console.log(this.model[data_path]);
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
 		if (list && get_type(list) == "array") {
 			for (var i = 0, l = list.length; i < l; i++) {
@@ -372,30 +389,23 @@ var AXBinder = (function () {
 		var tmpl       = this.tmpl[data_path];
 		item.__i__     = list.length;
 		item.__ADDED__ = true;
-
-		// 추가되는 하위 아이템 중에 object array를 찾아 __ADDED__ 값을 추가해줍니다.
-		/*
-		 for (var k in item) {
-		 if (get_type(item[k]) == "array" && item[k][0] && get_type(item[k][0]) == "object") {
-		 for (var ii = 0, il = item[k].length; ii < il; ii++) {
-		 item[k][ii].__ADDED__ = true;
-		 }
-		 }
-		 }
-		 */
-		var fragdom = $(Mustache.render(tmpl.content, item));
-		fragdom.attr("data-ax-repeat-i", item.__i__);
-
 		(Function("val", "this." + data_path + ".push(val);")).call(this.model, item);
 
-		this.bind_event_tmpl(fragdom, data_path);
-		tmpl.container.append(fragdom);
+		// 다중 템플릿 처리
+		for (var t in tmpl) {
+			var fragdom = $(Mustache.render(tmpl[t].content, item));
+			fragdom.attr("data-ax-repeat-i", item.__i__);
+			this.bind_event_tmpl(fragdom, data_path);
+			tmpl[t].container.append(fragdom);
+		}
+
 		this.change("*");
 		return this;
 	};
 
 	klass.prototype.remove = function (data_path, index) {
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
+		var tmpl = this.tmpl[data_path];
 		if (typeof index == "undefined") index = list.length - 1;
 		var remove_item = list[index];
 		if (remove_item.__ADDED__) {
@@ -403,19 +413,32 @@ var AXBinder = (function () {
 		} else {
 			list[index].__DELETED__ = true;
 		}
-		this.tmpl[data_path].container.empty();
-		this.print_tmpl(data_path, this.tmpl[data_path]);
+
+		for (var t in tmpl) {
+			tmpl[t].container.empty();
+			this.print_tmpl(data_path, tmpl[t]);
+		}
+
 		this.change("*");
 		return this;
 	};
 
 	klass.prototype.update = function (data_path, index, item) {
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
-		if(typeof index != "undefined" && item) list.splice(index, 1, item);
+		var tmpl = this.tmpl[data_path];
+		if (typeof index != "undefined" && item) list.splice(index, 1, item);
 
-		this.tmpl[data_path].container.empty();
-		this.print_tmpl(data_path, this.tmpl[data_path]);
+		for (var t in tmpl) {
+			tmpl[t].container.empty();
+			this.print_tmpl(data_path, tmpl[t]);
+		}
+
 		this.change("*");
+
+		var callBack = this.update_trigger[data_path];
+		if (callBack) {
+			callBack.call(list, list);
+		}
 		return this;
 	};
 
