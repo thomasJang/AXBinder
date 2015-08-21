@@ -45,15 +45,12 @@ var AXBinder = (function () {
 
 	klass.prototype.set_model = function (model, view_target) {
 		this.model       = model;
-		this.view_target = view_target;
-
-		this._binding();
-		return this;
-	};
-
-	klass.prototype.update_model = function (model) {
-		this.model = model;
-		this._binding("update");
+		if(!this.view_target && view_target){
+			this.view_target = view_target;
+			this._binding();
+		}else{
+			this._binding("update");
+		}
 		return this;
 	};
 
@@ -157,10 +154,20 @@ var AXBinder = (function () {
 		});
 
 		//_this.tmpl
+		var callBack;
 		for (var tk in _this.tmpl) {
 			for (var ix in _this.tmpl[tk]) {
 				//console.log(_this.tmpl[tk][ix].content);
 				this.print_tmpl(tk, _this.tmpl[tk][ix], "isInit");
+			}
+
+			if (callBack = this.update_trigger[tk]) {
+				var that = {
+					repeat_path: tk,
+					tmpl: _this.tmpl[tk],
+					list: (Function("", "return this." + tk + ";")).call(this.model)
+				};
+				callBack.call(that, that);
 			}
 		}
 	};
@@ -172,11 +179,12 @@ var AXBinder = (function () {
 		if (tagname == "input") {
 			if (type == "checkbox" || type == "radio") {
 				i = value.length;
-				if (i == 0) return this;
 				var checked = false;
-				while (i--) {
-					if (typeof value[i] !== "undefined" && el.value === value[i].toString()) {
-						checked = true;
+				if (i > 0) {
+					while (i--) {
+						if (typeof value[i] !== "undefined" && el.value === value[i].toString()) {
+							checked = true;
+						}
 					}
 				}
 				el.checked = checked;
@@ -270,7 +278,6 @@ var AXBinder = (function () {
 
 	klass.prototype.onupdate = function (data_path, callBack) {
 		this.update_trigger[data_path] = callBack;
-
 		return this;
 	};
 
@@ -280,6 +287,7 @@ var AXBinder = (function () {
 			for (var i = 0, l = list.length; i < l; i++) {
 				var item   = list[i];
 				item.__i__ = i;
+				item.__r__ = i;
 				if (i === 0) item.__first__ = true;
 				if (!item.__DELETED__) {
 					var fragdom = $(Mustache.render(tmpl.content, item));
@@ -388,6 +396,7 @@ var AXBinder = (function () {
 		var list       = (Function("", "return this." + data_path + ";")).call(this.model);
 		var tmpl       = this.tmpl[data_path];
 		item.__i__     = list.length;
+		item.__r__     = list.length;
 		item.__ADDED__ = true;
 		(Function("val", "this." + data_path + ".push(val);")).call(this.model, item);
 
@@ -400,6 +409,17 @@ var AXBinder = (function () {
 		}
 
 		this.change("*");
+
+		var callBack = this.update_trigger[data_path];
+		if (callBack) {
+			var that = {
+				repeat_path: data_path,
+				tmpl: tmpl,
+				list: list
+			};
+			callBack.call(that, that);
+		}
+
 		return this;
 	};
 
@@ -420,6 +440,17 @@ var AXBinder = (function () {
 		}
 
 		this.change("*");
+
+		var callBack = this.update_trigger[data_path];
+		if (callBack) {
+			var that = {
+				repeat_path: data_path,
+				tmpl: tmpl,
+				list: list
+			};
+			callBack.call(that, that);
+		}
+
 		return this;
 	};
 
@@ -437,8 +468,14 @@ var AXBinder = (function () {
 
 		var callBack = this.update_trigger[data_path];
 		if (callBack) {
-			callBack.call(list, list);
+			var that = {
+				repeat_path: data_path,
+				tmpl: tmpl,
+				list: list
+			};
+			callBack.call(that, that);
 		}
+
 		return this;
 	};
 
@@ -469,10 +506,21 @@ var AXBinder = (function () {
 		this.update(data_path, index, _list[index]);
 	};
 
-	klass.prototype.focus = function (data_path) {
-		this.view_target.find('[data-ax-path="' + data_path + '"]').focus();
-		this.view_target.find('[data-ax-item-path="' + data_path + '"]').focus();
+	klass.prototype.child_set = function (data_path, index, child_path, value) {
+		var _this = this, i;
+		(Function("val", "this." + data_path + "[" + index + "]." + child_path + " = val;")).call(this.model, value);
+
+		// apply data value to els
+		this.view_target.find('[data-ax-repeat="' + data_path + '"]').find('[data-ax-repeat-i="' + index + '"]').find('[data-ax-item-path="' + child_path + '"]').each(function(){
+			_this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value, data_path + "["+index+"]." + child_path);
+		});
+		return this;
 	};
 
-	return new klass();
+	klass.prototype.focus = function (data_path) {
+		this.view_target.find('[data-ax-path="' + data_path + '"]').focus();
+		//this.view_target.find('[data-ax-item-path="' + data_path + '"]').focus();
+	};
+
+	return klass;
 })();

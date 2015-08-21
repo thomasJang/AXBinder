@@ -36,7 +36,7 @@ http://axisj.github.io/AXBinder/
 
 ## Methods
 
-### AXBinder.set_model(Object, jQueryObject) : Model
+### AXBinder.set_model(Object[, jQueryObject]) : Model
 바인딩할 자바스크립트 오브젝트로
 제이쿼리로 검색된 HTML dom 엘리먼트 에 바인딩합니다.
 바인딩된 모델을 반환합니다.
@@ -53,16 +53,11 @@ var obj = {
 	name: "Thomas",
 	email: "tom@axisj.com
 }
-var myModel = AXBinder.set_model(obj, $("#form-target"));
+
+var myModel = new AXBinder();
+myModel.set_model(obj, $("#form-target"));
 ```
 
-### AXBinder.update_model(Object) : Model
-이미 바인딩되어 있는 바인더에 오브젝트를 변경할 때에 사용합니다.
-```js
-if(window.myModel){
-	myModel.update_model(obj);
-}
-```
 
 ### Model.set(data_path, value) : Model
 data_path에 값을 변경한다. value의 타입은 (String, Number, Array, Object)를 지원.
