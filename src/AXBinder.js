@@ -34,21 +34,21 @@ var AXBinder = (function () {
 	}
 
 	var klass = function () {
-		this.model          = {};
-		this.tmpl           = {};
-		this.view_target    = null;
+		this.model = {};
+		this.tmpl = {};
+		this.view_target = null;
 		this.change_trigger = {};
-		this.click_trigger  = {};
+		this.click_trigger = {};
 		this.update_trigger = {};
-		this.onerror        = null;
+		this.onerror = null;
 	};
 
 	klass.prototype.set_model = function (model, view_target) {
-		this.model       = model;
-		if(!this.view_target && view_target){
+		this.model = model;
+		if (!this.view_target && view_target) {
 			this.view_target = view_target;
 			this._binding();
-		}else{
+		} else {
 			this._binding("update");
 		}
 		return this;
@@ -92,7 +92,9 @@ var AXBinder = (function () {
 				//dom.empty().show();
 				dom.empty();
 			});
-		} else {
+		}
+		else
+		{
 			this.view_target.find('[data-ax-repeat]').each(function () {
 				var dom = $(this);
 				dom.empty().show();
@@ -101,7 +103,7 @@ var AXBinder = (function () {
 
 		// binding event to els
 		this.view_target.find('[data-ax-path]').unbind("change.axbinder").bind("change.axbinder", function () {
-			var dom        = $(this), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
+			var dom = $(this), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
 			var i, hasItem = false, checked, new_value = [];
 
 			if (value_type == "object" || value_type == "array") {
@@ -171,7 +173,7 @@ var AXBinder = (function () {
 			}
 		}
 	};
-	
+
 	klass.prototype.set_els_value = function (el, tagname, type, value, data_path) {
 		if (typeof value === "undefined") value = []; else value = [].concat(value);
 		var options, i;
@@ -217,7 +219,7 @@ var AXBinder = (function () {
 	klass.prototype.set = function (data_path, value) {
 		var _this = this, obj_type, i;
 		(Function("val", "this." + data_path + " = val;")).call(this.model, value);
-		obj_type  = get_type(value);
+		obj_type = get_type(value);
 
 		if (obj_type == "object") {
 			for (var k in value) {
@@ -285,7 +287,7 @@ var AXBinder = (function () {
 		var list = (Function("", "return this." + data_path + ";")).call(this.model);
 		if (list && get_type(list) == "array") {
 			for (var i = 0, l = list.length; i < l; i++) {
-				var item   = list[i];
+				var item = list[i];
 				item.__i__ = i;
 				item.__r__ = i;
 				if (i === 0) item.__first__ = true;
@@ -301,7 +303,7 @@ var AXBinder = (function () {
 
 	klass.prototype.bind_event_tmpl = function (target, data_path) {
 		var _this = this, index = target.attr("data-ax-repeat-i");
-		var list  = (Function("", "return this." + data_path + ";")).call(this.model);
+		var list = (Function("", "return this." + data_path + ";")).call(this.model);
 
 		target.find('[data-ax-repeat-click]').unbind("click.axbinder").bind("click.axbinder", function (e) {
 			var target = axf.get_event_target(e.target, function (el) {
@@ -311,14 +313,14 @@ var AXBinder = (function () {
 				var dom = $(target), value = dom.attr("data-ax-repeat-click"), repeat_path = dom.attr("data-ax-repeat-path");
 
 				var that = {
-					el         : target,
-					jquery     : dom,
-					tagname    : target.tagName.toLowerCase(),
-					value      : value,
+					el: target,
+					jquery: dom,
+					tagname: target.tagName.toLowerCase(),
+					value: value,
 					repeat_path: data_path,
-					item       : list[index],
-					item_index : index,
-					item_path  : data_path + "[" + index + "]"
+					item: list[index],
+					item_index: index,
+					item_path: data_path + "[" + index + "]"
 				};
 				_this.click(data_path, that);
 			}
@@ -342,7 +344,7 @@ var AXBinder = (function () {
 		// binding event to els
 		target.find('[data-ax-item-path]').unbind("change.axbinder").bind("change.axbinder", function () {
 			var i, hasItem = false, checked, new_value = [];
-			var dom        = $(this), item_path = dom.attr("data-ax-item-path"), mix_path = data_path + "[" + index + "]." + item_path + "", origin_value = (Function("", "return this." + mix_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
+			var dom = $(this), item_path = dom.attr("data-ax-item-path"), mix_path = data_path + "[" + index + "]." + item_path + "", origin_value = (Function("", "return this." + mix_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
 
 			if (value_type == "object" || value_type == "array") {
 				setAllow = false;
@@ -393,10 +395,10 @@ var AXBinder = (function () {
 	};
 
 	klass.prototype.add = function (data_path, item) {
-		var list       = (Function("", "return this." + data_path + ";")).call(this.model);
-		var tmpl       = this.tmpl[data_path];
-		item.__i__     = list.length;
-		item.__r__     = list.length;
+		var list = (Function("", "return this." + data_path + ";")).call(this.model);
+		var tmpl = this.tmpl[data_path];
+		item.__i__ = list.length;
+		item.__r__ = list.length;
 		item.__ADDED__ = true;
 		(Function("val", "this." + data_path + ".push(val);")).call(this.model, item);
 
@@ -480,16 +482,16 @@ var AXBinder = (function () {
 	};
 
 	klass.prototype.child_add = function (data_path, index, child_path, child_item) {
-		var _list            = (Function("", "return this." + data_path + ";")).call(this.model);
-		var list             = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
+		var _list = (Function("", "return this." + data_path + ";")).call(this.model);
+		var list = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
 		child_item.__ADDED__ = true;
 		list.push(child_item);
 		this.update(data_path, index, _list[index]);
 	};
 
 	klass.prototype.child_remove = function (data_path, index, child_path, child_index) {
-		var _list       = (Function("", "return this." + data_path + ";")).call(this.model);
-		var list        = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
+		var _list = (Function("", "return this." + data_path + ";")).call(this.model);
+		var list = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
 		var remove_item = list[child_index];
 		if (remove_item.__ADDED__) {
 			list.splice(child_index, 1);
@@ -500,8 +502,8 @@ var AXBinder = (function () {
 	};
 
 	klass.prototype.child_update = function (data_path, index, child_path, child_index, child_item) {
-		var _list         = (Function("", "return this." + data_path + ";")).call(this.model);
-		var list          = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
+		var _list = (Function("", "return this." + data_path + ";")).call(this.model);
+		var list = (Function("", "return this." + data_path + "[" + index + "]." + child_path + ";")).call(this.model);
 		list[child_index] = child_item;
 		this.update(data_path, index, _list[index]);
 	};
@@ -511,8 +513,8 @@ var AXBinder = (function () {
 		(Function("val", "this." + data_path + "[" + index + "]." + child_path + " = val;")).call(this.model, value);
 
 		// apply data value to els
-		this.view_target.find('[data-ax-repeat="' + data_path + '"]').find('[data-ax-repeat-i="' + index + '"]').find('[data-ax-item-path="' + child_path + '"]').each(function(){
-			_this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value, data_path + "["+index+"]." + child_path);
+		this.view_target.find('[data-ax-repeat="' + data_path + '"]').find('[data-ax-repeat-i="' + index + '"]').find('[data-ax-item-path="' + child_path + '"]').each(function () {
+			_this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value, data_path + "[" + index + "]." + child_path);
 		});
 		return this;
 	};
@@ -520,6 +522,77 @@ var AXBinder = (function () {
 	klass.prototype.focus = function (data_path) {
 		this.view_target.find('[data-ax-path="' + data_path + '"]').focus();
 		//this.view_target.find('[data-ax-item-path="' + data_path + '"]').focus();
+	};
+
+	klass.prototype.validate = function () {
+		var _this = this;
+		var errors = [];
+		this.view_target.find('[data-ax-path]').each(function () {
+			var dom = $(this), data_path = dom.attr("data-ax-path"), is_validate = dom.attr("data-ax-validate");
+
+			if(is_validate){
+				var val = (Function("", "return this." + data_path + ";")).call(_this.model);
+				if(typeof val === "undefined") val = "";
+				var _val = val.toString();
+
+				var is_error = false;
+				if(is_validate == "required" && _val.trim() == ""){
+					is_error = true;
+				}
+				else if(!(/\D.?/g).test(is_validate) && _val.trim().length < is_validate.number()) {
+					is_error = true;
+				}
+
+				if(is_error) {
+					errors.push({
+						type: is_validate,
+						data_path: data_path,
+						el: this,
+						jquery: dom,
+						value: val
+					});
+				}
+			}
+		});
+		this.view_target.find('[data-ax-repeat]').each(function () {
+			var dom = $(this),
+				data_path = dom.attr("data-ax-repeat"),
+				repeat_idx = dom.attr("data-ax-repeat-idx"),
+				is_validate = dom.attr("data-ax-validate"),
+				item_path = dom.attr("data-ax-item-path");
+
+			var val = (Function("", "return this." + data_path + "[" + repeat_idx + "]." + item_path + ";")).call(_this.model);
+
+			if(is_validate){
+				var is_error = false;
+				if(is_validate == "required" && val.trim() == ""){
+					is_error = true;
+				}
+				else if(!(/\D.?/g).test(is_validate) && val.trim().length < is_validate.number()) {
+					is_error = true;
+				}
+
+				if(is_error) {
+					errors.push({
+						type: is_validate,
+						data_path: data_path,
+						el: this,
+						jquery: dom,
+						value: val
+					});
+				}
+			}
+
+		});
+
+		if(errors.length > 0){
+			return {
+				error: errors
+			}
+		}else{
+			return {};
+		}
+
 	};
 
 	return klass;

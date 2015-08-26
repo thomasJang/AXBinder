@@ -342,6 +342,7 @@
 					this.model.add("list", {name: "name:" + this.model.model.list.length, child: [{name: ""}]});
 				}, remove    : function (repeat_path, item_index) {
 					this.model.remove(repeat_path, item_index);
+					//_this.print_json();
 				}, update    : function (repeat_path, item_index, item) {
 					/**
 					 * repeat_item update
