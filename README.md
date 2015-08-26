@@ -145,5 +145,18 @@ data-ax-repeat="list" 하위 아이템중 child_key의 하위 아이템을 교�
 myModel.child_update("list", 0, "child", 0, {a:1});
 ```
 
-
-
+### Model.validate() : Object
+data-ax-validate 를 가진 엘리먼트에 대해 값을 검사하고 값이 없거나 짦은 경우 error를 리턴합니다.
+```html
+<input type="text" data-ax-path="q" data-ax-validate="required" title="이름" maxlength="8" class="AXInput W150" value=""/>
+```
+```js
+var rs = myModel.validate(), _s;
+console.log(rs); // 결과를 체크 해보세요
+if(rs.error) {
+    _s = rs.error[0].jquery.attr("title");
+    alert("" + _s + "(은)는 필수 입력사항입니다." + _s + "(을)를 입력하세요");
+    rs.error[0].el.focus();
+    return;
+}
+```
