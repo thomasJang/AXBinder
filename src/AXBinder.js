@@ -71,7 +71,7 @@ var AXBinder = (function () {
                 if (_this.onerror) _this.onerror("not found target [model." + data_path + "]");
             }
 
-            _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val || "");
+            _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val || "", data_path);
         });
 
         if (typeof isupdate == "undefined") {
@@ -102,7 +102,8 @@ var AXBinder = (function () {
 
         // binding event to els
         this.view_target.find('[data-ax-path]').unbind("change.axbinder").bind("change.axbinder", function (e) {
-            var dom = $(e.target), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
+            var dom = $(e.target), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model),
+                value_type = get_type(origin_value), setAllow = true;
             var i, hasItem = false, checked, new_value = [];
 
             if (value_type == "object" || value_type == "array") {
@@ -144,7 +145,9 @@ var AXBinder = (function () {
                 _this.change(data_path, {
                     el: this, jquery: dom, tagname: this.tagName.toLowerCase(), value: origin_value
                 });
-            } else {
+            }
+            else
+            {
                 if (setAllow) {
                     (Function("val", "this." + data_path + " = val;")).call(_this.model, this.value);
                     _this.change(data_path, {
@@ -176,7 +179,7 @@ var AXBinder = (function () {
         }
     };
 
-    klass.prototype.set_els_value = function (el, tagname, type, value, data_path) {
+    klass.prototype.set_els_value = function (el, tagname, type, value, data_path, callChange) {
         if (typeof value === "undefined") value = []; else value = [].concat(value);
         var options, i;
 
@@ -198,10 +201,19 @@ var AXBinder = (function () {
         } else if (tagname == "select") {
             options = el.options, i = options.length;
             while (i--) {
-                var vi = value.length;
+                var vi = value.length, option_matched = false;
                 while (vi--) {
                     if (typeof value[vi] !== "undefined" && options[i].value === value[vi].toString()) {
                         options[i].selected = true;
+                        option_matched = true;
+                    }
+                }
+                if(!option_matched){
+                    if(options[0]) {
+                        options[0].selected = true;
+                        (Function("val", "this." + data_path + " = val;")).call(this.model, options[0].value);
+                    }else{
+                        (Function("val", "this." + data_path + " = val;")).call(this.model, "");
                     }
                 }
             }
@@ -212,7 +224,7 @@ var AXBinder = (function () {
             el.value = value.join('') || "";
         }
 
-        if (data_path) {
+        if (callChange) {
             this.change(data_path, {el: el, tagname: tagname, value: value});
         }
         return this;
@@ -230,7 +242,7 @@ var AXBinder = (function () {
         } else if (obj_type == "array") {
             this.view_target.find('[data-ax-path="' + data_path + '"]').each(function () {
                 if (this.type.toLowerCase() == "checkbox" || this.type.toLowerCase() == "radio")
-                    _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value, data_path);
+                    _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value, data_path, "change");
             });
             i = value.length;
             while (i--) {
@@ -239,14 +251,21 @@ var AXBinder = (function () {
         } else {
             // apply data value to els
             this.view_target.find('[data-ax-path="' + data_path + '"]').each(function () {
-                _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value, data_path);
+                _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value, data_path, "change");
             });
         }
         return this;
     };
 
     klass.prototype.get = function (data_path) {
-        return (typeof data_path == "undefined") ? this.model : (Function("", "return this." + data_path + ";")).call(this.model);
+        if(typeof data_path == "undefined"){
+
+            return this.model;
+        }
+        else{
+            return (Function("", "return this." + data_path + ";")).call(this.model);
+        }
+
     };
 
     klass.prototype.onchange = function (data_path, callBack) {
@@ -276,7 +295,7 @@ var AXBinder = (function () {
         }
     };
 
-    klass.prototype.reload = function () {
+    klass.prototype.sync_model = function () {
 
     };
 
@@ -341,7 +360,8 @@ var AXBinder = (function () {
                  * */
                 if (_this.onerror) _this.onerror("not found target [model." + mix_path + "]");
             }
-            if (typeof val !== "undefined") _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val);
+            //if (typeof val !== "undefined") _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val, mix_path);
+            _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val || "", mix_path);
         });
 
         // binding event to els
