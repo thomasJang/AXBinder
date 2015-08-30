@@ -101,8 +101,8 @@ var AXBinder = (function () {
         }
 
         // binding event to els
-        this.view_target.find('[data-ax-path]').unbind("change.axbinder").bind("change.axbinder", function () {
-            var dom = $(this), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
+        this.view_target.find('[data-ax-path]').unbind("change.axbinder").bind("change.axbinder", function (e) {
+            var dom = $(e.target), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
             var i, hasItem = false, checked, new_value = [];
 
             if (value_type == "object" || value_type == "array") {
@@ -152,6 +152,9 @@ var AXBinder = (function () {
                     });
                 }
             }
+        });
+        this.view_target.find('[data-ax-path]').unbind("blur.axbinder").bind("blur.axbinder", function(e){
+            $(e.target).trigger("change");
         });
 
         //_this.tmpl
@@ -342,9 +345,9 @@ var AXBinder = (function () {
         });
 
         // binding event to els
-        target.find('[data-ax-item-path]').unbind("change.axbinder").bind("change.axbinder", function () {
+        target.find('[data-ax-item-path]').unbind("change.axbinder").bind("change.axbinder", function (e) {
             var i, hasItem = false, checked, new_value = [];
-            var dom = $(this), item_path = dom.attr("data-ax-item-path"), mix_path = data_path + "[" + index + "]." + item_path + "", origin_value = (Function("", "return this." + mix_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
+            var dom = $(e.target), item_path = dom.attr("data-ax-item-path"), mix_path = data_path + "[" + index + "]." + item_path + "", origin_value = (Function("", "return this." + mix_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
 
             if (value_type == "object" || value_type == "array") {
                 setAllow = false;
@@ -391,6 +394,9 @@ var AXBinder = (function () {
                     });
                 }
             }
+        });
+        target.find('[data-ax-item-path]').unbind("blur.axbinder").bind("blur.axbinder", function(e){
+            $(e.target).trigger("change");
         });
     };
 
