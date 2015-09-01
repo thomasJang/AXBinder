@@ -200,23 +200,28 @@ var AXBinder = (function () {
             }
         } else if (tagname == "select") {
             options = el.options, i = options.length;
+            var vi, option_matched = false;
+
             while (i--) {
-                var vi = value.length, option_matched = false;
+                vi = value.length;
                 while (vi--) {
                     if (typeof value[vi] !== "undefined" && options[i].value === value[vi].toString()) {
                         options[i].selected = true;
                         option_matched = true;
+                        break;
                     }
                 }
-                if(!option_matched){
-                    if(options[0]) {
-                        options[0].selected = true;
-                        (Function("val", "this." + data_path + " = val;")).call(this.model, options[0].value);
-                    }else{
-                        (Function("val", "this." + data_path + " = val;")).call(this.model, "");
-                    }
+                if(option_matched) break;
+            }
+            if(!option_matched){
+                if(options[0]) {
+                    options[0].selected = true;
+                    (Function("val", "this." + data_path + " = val;")).call(this.model, options[0].value);
+                }else{
+                    (Function("val", "this." + data_path + " = val;")).call(this.model, "");
                 }
             }
+
             if (window.AXSelect) { // AXISJ 사용가능
                 $(typeof value !== "undefined" && el).bindSelectSetValue(value[value.length - 1]);
             }
