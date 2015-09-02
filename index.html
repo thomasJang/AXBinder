@@ -2,334 +2,417 @@
 <html lang="en">
 <head>
 
-	<meta charset="UTF-8">
-	<title></title>
-	<script src="plugins/jquery/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="plugins/jquery/jquery.min.js"></script>
 
-	<link rel="stylesheet" type="text/css" href="http://cdn.axisj.com/axisj/ui/arongi/AXJ.min.css"/>
-	<script type="text/javascript" src="http://cdn.axisj.com/axisj/dist/AXJ.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://cdn.axisj.com/axisj/ui/arongi/AXJ.min.css"/>
+    <script type="text/javascript" src="http://cdn.axisj.com/axisj/dist/AXJ.min.js"></script>
 
 
-	<script type="text/javascript" src="plugins/prettify/prettify.js"></script>
-	<link rel="stylesheet" type="text/css" href="plugins/prettify/github.css"/>
+    <script type="text/javascript" src="plugins/prettify/prettify.js"></script>
+    <link rel="stylesheet" type="text/css" href="plugins/prettify/github.css"/>
 
-	<script src="plugins/mustache/mustache.js"></script>
-	<script src="src/AXBinder.js"></script>
-	<script src="plugins/json-pretty.js"></script>
+    <script src="plugins/mustache/mustache.js"></script>
+    <script src="src/AXBinder.js"></script>
+    <script src="plugins/json-pretty.js"></script>
 
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
 </head>
 <body>
+<div style="position: absolute;left:10px;top:15px;">
 
-<h1>AXBinder - simple & simple twoway binding javascript</h1>
-<a href="https://github.com/thomasJang/AXBinder">https://github.com/thomasJang/AXBinder</a>
-<table style="table-layout: fixed; width: 100%;" cellpadding="10">
-	<tr valign="top">
-		<td>
+    <!-- 현재 페이지 좋아요 : 페이스북 {{-->
+    <div id="fb-root"></div>
+    <script>(function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "//connect.facebook.net/ko_KR/sdk.js#xfbml=1&version=v2.4&appId=310769015734019";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
 
-			<div id="form-target">
+    <div style="margin-bottom:10px;">
+        <div class="fb-like" data-href="https://github.com/axisj/AXBinder" data-width="100%" data-show-faces="false"
+             data-send="true" data-font="segoe ui">
+        </div>
+    </div>
+    <!-- 현재 페이지 좋아요 : 페이스북 }} -->
 
-				<h3>Infomation</h3>
+    <h2 style="margin: 0px;padding:0px">AXBinder - simple & simple twoway binding javascript</h2>
+    <a href="https://github.com/axisj/AXBinder">https://github.com/axisj/AXBinder</a>
+</div>
+<table style="table-layout: fixed; width: 100%;height:100%;border-collapse: collapse;" cellspacing="0" cellpadding="0">
+    <tr valign="top">
+        <td style="padding-top:80px;">
+            <div id="form-target" style="overflow: auto;height:100%;">
 
-				<table class="AXFormTable">
-					<colgroup>
-						<col width="100"/>
-						<col/>
-						<col width="100"/>
-						<col/>
-					</colgroup>
-					<tbody>
-					<tr>
-						<th>name</th>
-						<td colspan="3">
-							<input type="text" name="input-text" data-ax-path="name" class="AXInput"/>
-						</td>
-					</tr>
-					<tr>
-						<th>tel</th>
-						<td>
-							<input type="text" name="input-text" data-ax-path="tel" class="AXInput"/>
-						</td>
-						<th>email</th>
-						<td>
-							<input type="text" name="input-text" data-ax-path="email" class="AXInput"/>
-						</td>
-					</tr>
-					<tr>
-						<th>sex</th>
-						<td colspan="3">
-							<label>
-								<input type="radio" name="radio" data-ax-path="sex" value="M"/>
-								M
-							</label>
-							<label>
-								<input type="radio" name="radio" data-ax-path="sex" value="F"/>
-								F
-							</label>
-						</td>
-					</tr>
-					<tr>
-						<th>character</th>
-						<td>
-							<select name="select" data-ax-path="character" class="AXSelect" id="select-target-01">
-								<option vlaue="wild">wild</option>
-								<option vlaue="shiny">shiny</option>
-								<option vlaue="nice">nice</option>
-							</select>
-						</td>
-						<th>hobby</th>
-						<td>
-							<label>
-								<input type="checkbox" name="checkbox" data-ax-path="hobby" value="sport"/>
-								sport
-							</label>
-							<label>
-								<input type="checkbox" name="checkbox" data-ax-path="hobby" value="movie"/>
-								movie
-							</label>
-							<label>
-								<input type="checkbox" name="checkbox" data-ax-path="hobby" value="music"/>
-								music
-							</label>
-							<label>
-								<input type="checkbox" name="checkbox" data-ax-path="hobby" value="play"/>
-								play
-							</label>
-							<label>
-								<input type="checkbox" name="checkbox" data-ax-path="hobby" value="work"/>
-								work
-							</label>
-						</td>
-					</tr>
-					<tr>
-						<th>description</th>
-						<td colspan="3">
+                <h3>
+                    Infomation
+                    &nbsp;&nbsp;
+                    <button class="AXButton" id="ax-btn-validate">Validate</button>
+                </h3>
+
+                <table class="AXFormTable">
+                    <colgroup>
+                        <col width="100"/>
+                        <col/>
+                        <col width="100"/>
+                        <col/>
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <th>name</th>
+                        <td colspan="3">
+                            <input type="text" name="input-text" data-ax-path="name" data-ax-validate="required" class="AXInput"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>tel</th>
+                        <td>
+                            <input type="text" name="input-text" data-ax-path="tel" class="AXInput"/>
+                        </td>
+                        <th>email</th>
+                        <td>
+                            <input type="text" name="input-text" data-ax-path="email" class="AXInput"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>sex</th>
+                        <td>
+                            <label>
+                                <input type="radio" name="radio" data-ax-path="sex" value="M"/>
+                                M
+                            </label>
+                            <label>
+                                <input type="radio" name="radio" data-ax-path="sex" value="F"/>
+                                F
+                            </label>
+                        </td>
+                        <th>
+                            Y/N
+                        </th>
+                        <td>
+                            <label>
+                                <input type="checkbox" data-ax-path="useYn" value="Y" />
+                                Y/N
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>character</th>
+                        <td>
+                            <select name="select" data-ax-path="character" class="AXSelect" id="select-target-01">
+                                <option vlaue="wild">wild</option>
+                                <option vlaue="shiny">shiny</option>
+                                <option vlaue="nice">nice</option>
+                            </select>
+                        </td>
+                        <th>hobby</th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="checkbox" data-ax-path="hobby" value="sport"/>
+                                sport
+                            </label>
+                            <label>
+                                <input type="checkbox" name="checkbox" data-ax-path="hobby" value="movie"/>
+                                movie
+                            </label>
+                            <label>
+                                <input type="checkbox" name="checkbox" data-ax-path="hobby" value="music"/>
+                                music
+                            </label>
+                            <label>
+                                <input type="checkbox" name="checkbox" data-ax-path="hobby" value="play"/>
+                                play
+                            </label>
+                            <label>
+                                <input type="checkbox" name="checkbox" data-ax-path="hobby" value="work"/>
+                                work
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>description</th>
+                        <td colspan="3">
 							<textarea name="textarea" data-ax-path="description" class="AXTextarea"
-							          style="width:90%;height:100px;"></textarea>
-						</td>
-					</tr>
-					</tbody>
-				</table>
+                                      style="width:90%;height:100px;"></textarea>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
 
-				<h3>Familys &nbsp;&nbsp;
-					<button class="AXButton" id="ax-btn-list-add">ADD</button>
-				</h3>
+                <h3>Familys &nbsp;&nbsp;
+                    <button class="AXButton" id="ax-btn-list-add">ADD</button>
+                </h3>
 
-				<table cellpadding="0" cellspacing="0" class="AXGridTable">
-					<colgroup>
-						<col width="60"/>
-						<col width="80"/>
-						<col width="100"/>
-						<col width="100"/>
-						<col width="100"/>
-						<col/>
-					</colgroup>
-					<thead>
-					<tr>
-						<td></td>
-						<td>A</td>
-						<td>B</td>
-						<td>C</td>
-						<td>D</td>
-						<td>E</td>
-					</tr>
-					</thead>
-					<tbody data-ax-repeat="list" style="display: none;">
-					<tr>
-						<td align="center">
+                <table cellpadding="0" cellspacing="0" class="AXGridTable">
+                    <colgroup>
+                        <col width="60"/>
+                        <col width="80"/>
+                        <col width="100"/>
+                        <col width="100"/>
+                        <col width="100"/>
+                        <col/>
+                        <col width="100"/>
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <td></td>
+                        <td>A</td>
+                        <td>B</td>
+                        <td>C</td>
+                        <td>D</td>
+                        <td>E</td>
+                        <td>F</td>
+                    </tr>
+                    </thead>
+                    <tbody data-ax-repeat="list">
+                    <script type="text/html">
+                        <tr>
+                            <td align="center">
 
-							{{__i__}}
+                                {{__i__}}
 
-							{{#__first__}}
-							<button class="AXButton" data-ax-repeat-click="add">+</button>
-							{{/__first__}}
-							{{^__first__}}
-							<button class="AXButton" data-ax-repeat-click="remove">-</button>
-							{{/__first__}}
+                                {{#__first__}}
+                                <button class="AXButton" data-ax-repeat-click="add">+</button>
+                                {{/__first__}}
+                                {{^__first__}}
+                                <button class="AXButton" data-ax-repeat-click="remove">-</button>
+                                {{/__first__}}
 
-						</td>
-						<td>
-							<input type="text" name="input-text" id="name-{{__i__}}" data-ax-item-path="name"
-							       class="AXInput W60"/>
-						</td>
-						<td>
-							<label>
-								<input type="radio" name="radio-{{__i__}}" data-ax-item-path="sex" value="M"/>
-								Male
-							</label>
-							<br/>
-							<label>
-								<input type="radio" name="radio-{{__i__}}" data-ax-item-path="sex" value="F"/>
-								Female
-							</label>
-						</td>
-						<td>
-							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
-								       value="sport"/>
-								sport
-							</label>
-							<br/>
-							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
-								       value="movie"/>
-								movie
-							</label>
-							<br/>
-							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
-								       value="music"/>
-								music
-							</label>
-							<br/>
-							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
-								       value="play"/>
-								play
-							</label>
-							<br/>
-							<label>
-								<input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
-								       value="work"/>
-								work
-							</label>
-						</td>
-						<td>
-							<select name="select" data-ax-item-path="character" class="AXSelect">
-								<option vlaue="wild">wild</option>
-								<option vlaue="shiny">shiny</option>
-								<option vlaue="nice">nice</option>
-							</select>
-						</td>
-						<td>
+                            </td>
+                            <td>
+                                <input type="text" name="input-text" id="name-{{__i__}}" data-ax-item-path="name" data-ax-validate="required"
+                                       class="AXInput W60"/>
+                            </td>
+                            <td>
+                                <label>
+                                    <input type="radio" name="radio-{{__i__}}" data-ax-item-path="sex" value="M"/>
+                                    Male
+                                </label>
+                                <br/>
+                                <label>
+                                    <input type="radio" name="radio-{{__i__}}" data-ax-item-path="sex" value="F"/>
+                                    Female
+                                </label>
+                            </td>
+                            <td>
+                                <label>
+                                    <input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+                                           value="sport"/>
+                                    sport
+                                </label>
+                                <br/>
+                                <label>
+                                    <input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+                                           value="movie"/>
+                                    movie
+                                </label>
+                                <br/>
+                                <label>
+                                    <input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+                                           value="music"/>
+                                    music
+                                </label>
+                                <br/>
+                                <label>
+                                    <input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+                                           value="play"/>
+                                    play
+                                </label>
+                                <br/>
+                                <label>
+                                    <input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+                                           value="work"/>
+                                    work
+                                </label>
+                            </td>
+                            <td>
+                                <select name="select" data-ax-item-path="character" class="AXSelect">
+                                    <option value="wild">wild</option>
+                                    <option value="shiny">shiny</option>
+                                    <option value="nice">nice</option>
+                                </select>
+                            </td>
+                            <td>
 
-							{{#child}}
-							{{^__DELETED__}}
-							<input type="text" name="text" data-ax-item-path="child[{{__i__}}].name" value=""
-							       class="AXInput W50"/>
-							{{#__first__}}
-							<button class="AXButton" data-ax-repeat-child="child"
-							        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="add">+
-							</button>
-							{{/__first__}}
-							{{^__first__}}
-							<button class="AXButton" data-ax-repeat-child="child"
-							        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="remove">-
-							</button>
-							{{/__first__}}
-							{{/__DELETED__}}
-							{{/child}}
+                                {{#child}}
+                                {{^__DELETED__}}
+                                <input type="text" name="text" data-ax-item-path="child[{{__i__}}].name" value=""
+                                       class="AXInput W50"/>
+                                {{#__first__}}
+                                <button class="AXButton" data-ax-repeat-child="child"
+                                        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="add">+
+                                </button>
+                                {{/__first__}}
+                                {{^__first__}}
+                                <button class="AXButton" data-ax-repeat-child="child"
+                                        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="remove">-
+                                </button>
+                                {{/__first__}}
+                                {{/__DELETED__}}
+                                {{/child}}
 
-						</td>
-					</tr>
-					</tbody>
-				</table>
-			</div>
-
-		</td>
-		<td>
-
-			<pre class="prettyprint linenums" id="json-preview"></pre>
-
-		</td>
-	</tr>
+                            </td>
+                            <td>
+                                <label>
+                                    <input type="checkbox" data-ax-item-path="useYn" value="Y" />
+                                    Y/N
+                                </label>
+                            </td>
+                        </tr>
+                    </script>
+                    </tbody>
+                </table>
+            </div>
+        </td>
+        <td style="padding-top:80px;padding-left:15px;padding-right:10px;">
+            <div style="overflow: auto; height:100%;">
+                <pre class="prettyprint linenums" id="json-preview"></pre>
+            </div>
+        </td>
+    </tr>
 </table>
 
 <script>
-	var obj = {
-		name       : "thomas",
-		tel        : "010-8881-9000",
-		email      : "tom@axisj.com",
-		sex        : "M",
-		character  : "wild",
-		hobby      : ["sport"],
-		description: "",
-		list       : [{
-			name       : "thomas",
-			tel        : "010-8881-9000",
-			email      : "tom@axisj.com",
-			sex        : "M",
-			character  : "wild",
-			hobby      : ["movie", "play"],
-			description: "",
-			child      : [{name: "빈값"}, {name: "빈값"}]
-		}, {
-			name       : "thomas",
-			tel        : "010-8881-9000",
-			email      : "tom@axisj.com",
-			sex        : "M",
-			character  : "wild",
-			hobby      : ["movie", "play"],
-			description: "",
-			child      : [{name: "빈값"}, {name: "빈값"}]
-		}]
-	};
+    var obj = {
+        name: "Thomas Jang",
+        tel: "010-8881-9137",
+        email: "tom@axisj.com",
+        sex: "M",
+        hobby: ["sport"],
+        useYn: "N",
+        description: "http://www.axisj.com",
+        list: [{
+            name: "thomas",
+            tel: "010-8881-9000",
+            email: "tom@axisj.com",
+            sex: "M",
+            //character: "wild",
+            //hobby: ["movie", "play"],
+            description: "",
+            child: [{name: "빈값"}, {name: "빈값"}]
+        }, {
+            name: "thomas",
+            tel: "010-8881-9000",
+            email: "tom@axisj.com",
+            sex: "M",
+//            character: "shiny",
+            //hobby: ["movie", "play"],
+            description: "",
+            child: [{name: "빈값"}, {name: "빈값"}]
+        }]
+    };
 
-	var fnObj = {
-		pageStart: function () {
-			this.form.init();
-		}, form  : {
-			model        : null, init: function () {
-				var _this  = this;
-				/**
-				 * AXBinder.set_model(Object, jQueryObject);
-				 * Object를 타겟 아이템 아래에 반영
-				 */
-				this.model = AXBinder.set_model(obj, $("#form-target"));
-				this.print_json();
+    var fnObj = {
+        pageStart: function () {
+            this.form.init();
 
-				/**
-				 * this.model.onchange(objectPath, Function);
-				 */
-				this.model.onchange("*", function () {
-					console.log(this);
-					_this.print_json();
-				});
+            $("#ax-btn-validate").click(function (){
+                fnObj.form.validate();
+            });
+            $("#ax-btn-list-add").click(function () {
+                fnObj.form.add();
+            });
+        },
+        form: {
+            model: new AXBinder(),
+            init: function () {
+                var _this = this;
 
-				/**
-				 * this.model.onclick(objectPath, callBack);
-				 */
-				this.model.onclick("list", function () {
-					console.log(this);
-					var child_key = this.jquery.attr("data-ax-repeat-child"), child_index = this.jquery.attr("data-ax-repeat-child-c-index");
-					if (child_key) {
-						if (this.value == "add") {
-							_this.model.child_add(this.repeat_path, this.item_index, child_key, {name: ""});
-						} else {
-							_this.model.child_remove(this.repeat_path, this.item_index, child_key, child_index);
-						}
-					} else if (this.value == "add") {
-						_this.add();
-					} else {
-						//console.log(this.repeat_path, this.item_index);
-						_this.remove(this.repeat_path, this.item_index);
-					}
-				});
+                /**
+                 * this.model.onchange(objectPath, Function);
+                 */
+                this.model.onchange("*", function () {
+                    //console.log(this);
+                    _this.print_json();
+                });
 
-				$("#ax-btn-list-add").click(function () {
-					_this.add();
-				});
-			}, add       : function () {
-				this.model.add("list", {name: "name:" + this.model.model.list.length, child: [{name: ""}]});
-			}, remove    : function (repeat_path, item_index) {
-				this.model.remove(repeat_path, item_index);
-			}, update    : function (repeat_path, item_index, item) {
-				/**
-				 * repeat_item update
-				 */
-				this.model.update(repeat_path, item_index, item);
-			}, print_json: function () {
-				var model = this.model.get();
-				console.log(model.list);
-				$("#json-preview").html(jsonPretty(model));
-				prettyPrint();
-			}
-		}
-	};
+                /**
+                 * this.model.onclick(objectPath, callBack);
+                 */
+                this.model.onclick("list", function () {
+                    console.log(this);
+                    var child_key = this.jquery.attr("data-ax-repeat-child"), child_index = this.jquery.attr("data-ax-repeat-child-c-index");
+                    if (child_key) {
+                        if (this.value == "add") {
+                            _this.model.child_add(this.repeat_path, this.item_index, child_key, {name: ""});
+                        } else {
+                            _this.model.child_remove(this.repeat_path, this.item_index, child_key, child_index);
+                        }
+                    } else if (this.value == "add") {
+                        _this.add();
+                    } else {
+                        //console.log(this.repeat_path, this.item_index);
+                        _this.remove(this.repeat_path, this.item_index);
+                    }
+                });
 
-	$(document.body).ready(function () {
-		fnObj.pageStart();
-	});
+                /**
+                 * AXBinder.set_model(Object, jQueryObject);
+                 * Object를 타겟 아이템 아래에 반영
+                 */
+                this.model.set_model(obj, $("#form-target"));
 
+                this.print_json();
+            },
+            add: function () {
+                this.model.add("list", {name: "name:" + this.model.model.list.length, child: [{name: ""}]});
+            },
+            remove: function (repeat_path, item_index) {
+                this.model.remove(repeat_path, item_index);
+                //_this.print_json();
+            },
+            update: function (repeat_path, item_index, item) {
+                /**
+                 * repeat_item update
+                 */
+                this.model.update(repeat_path, item_index, item);
+            },
+            validate: function () {
+                var rs = this.model.validate();
+                if(rs.error){
+                    alert("validate 실패");
+                    console.log(rs.error);
+                    rs.error[0].jquery.focus();
+                    return;
+                }
+            },
+            print_json: function () {
+                var model = this.model.get();
+                $("#json-preview").html(jsonPretty(model));
+                prettyPrint();
+            }
+        }
+    };
+
+    $(document.body).ready(function () {
+        fnObj.pageStart();
+    });
+
+</script>
+<script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+        a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-56252826-1', 'auto');
+    ga('send', 'pageview');
 </script>
 </body>
 </html>
