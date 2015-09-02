@@ -70,8 +70,12 @@
                     <tbody>
                     <tr>
                         <th>name</th>
-                        <td colspan="3">
+                        <td>
                             <input type="text" name="input-text" data-ax-path="name" data-ax-validate="required" class="AXInput"/>
+                        </td>
+                        <th>name(readonly)</th>
+                        <td>
+                            <span data-ax-path="alias"></span>
                         </td>
                     </tr>
                     <tr>
@@ -285,6 +289,7 @@
 <script>
     var obj = {
         name: "Thomas Jang",
+        alias: "tom",
         tel: "010-8881-9137",
         email: "tom@axisj.com",
         sex: "M",

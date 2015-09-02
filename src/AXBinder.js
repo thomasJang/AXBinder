@@ -59,7 +59,7 @@ var AXBinder = (function () {
 
         // apply data value to els
         this.view_target.find('[data-ax-path]').each(function () {
-            var dom = $(this), data_path = dom.attr("data-ax-path");
+            var dom = $(this), data_path = dom.attr("data-ax-path"), this_type = (this.type || "").toLowerCase();
 
             var val;
             try {
@@ -71,7 +71,7 @@ var AXBinder = (function () {
                 if (_this.onerror) _this.onerror("not found target [model." + data_path + "]");
             }
 
-            _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val || "", data_path);
+            _this.set_els_value(this, this.tagName.toLowerCase(), this_type, val || "", data_path);
         });
 
         if (typeof isupdate == "undefined") {
@@ -102,7 +102,7 @@ var AXBinder = (function () {
 
         // binding event to els
         this.view_target.find('[data-ax-path]').unbind("change.axbinder").bind("change.axbinder", function (e) {
-            var dom = $(e.target), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model),
+            var dom = $(e.target), data_path = dom.attr("data-ax-path"), origin_value = (Function("", "return this." + data_path + ";")).call(_this.model), this_type = (this.type || "").toLowerCase(),
                 value_type = get_type(origin_value), setAllow = true;
             var i, hasItem = false, checked, new_value = [];
 
@@ -110,7 +110,7 @@ var AXBinder = (function () {
                 setAllow = false;
             }
 
-            if (this.type.toLowerCase() == "checkbox") {
+            if (this_type == "checkbox") {
                 // 동일한 체크박스가 여러개 인지 판단합니다.
                 if (_this.view_target.find('[data-ax-path="' + data_path + '"]').length > 1) {
 
@@ -227,6 +227,12 @@ var AXBinder = (function () {
             }
         } else if (tagname == "textarea") {
             el.value = value.join('') || "";
+        } else {
+            if (el.innerText) {
+                el.innerText = value.join("");
+            } else {
+                el.innerHTML = value.join("");
+            }
         }
 
         if (callChange) {
@@ -236,7 +242,7 @@ var AXBinder = (function () {
     };
 
     klass.prototype.set = function (data_path, value) {
-        var _this = this, obj_type, i;
+        var _this = this, obj_type, i, this_type = (this.type || "").toLowerCase();
         (Function("val", "this." + data_path + " = val;")).call(this.model, value);
         obj_type = get_type(value);
 
@@ -246,8 +252,8 @@ var AXBinder = (function () {
             }
         } else if (obj_type == "array") {
             this.view_target.find('[data-ax-path="' + data_path + '"]').each(function () {
-                if (this.type.toLowerCase() == "checkbox" || this.type.toLowerCase() == "radio")
-                    _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value, data_path, "change");
+                if (this_type == "checkbox" || this_type == "radio")
+                    _this.set_els_value(this, this.tagName.toLowerCase(), this_type, value, data_path, "change");
             });
             i = value.length;
             while (i--) {
@@ -256,7 +262,7 @@ var AXBinder = (function () {
         } else {
             // apply data value to els
             this.view_target.find('[data-ax-path="' + data_path + '"]').each(function () {
-                _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value, data_path, "change");
+                _this.set_els_value(this, this.tagName.toLowerCase(), this_type, value, data_path, "change");
             });
         }
         return this;
@@ -355,7 +361,7 @@ var AXBinder = (function () {
 
         // apply data value to els
         target.find('[data-ax-item-path]').each(function () {
-            var dom = $(this), item_path = dom.attr("data-ax-item-path"), mix_path = data_path + "[" + index + "]." + item_path + "", val;
+            var dom = $(this), item_path = dom.attr("data-ax-item-path"), mix_path = data_path + "[" + index + "]." + item_path + "", val, this_type = (this.type || "").toLowerCase();
 
             try {
                 val = (Function("", "return this." + mix_path + ";")).call(_this.model);
@@ -365,20 +371,20 @@ var AXBinder = (function () {
                  * */
                 if (_this.onerror) _this.onerror("not found target [model." + mix_path + "]");
             }
-            //if (typeof val !== "undefined") _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val, mix_path);
-            _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), val || "", mix_path);
+            //if (typeof val !== "undefined") _this.set_els_value(this, this.tagName.toLowerCase(), this_type, val, mix_path);
+            _this.set_els_value(this, this.tagName.toLowerCase(), this_type, val || "", mix_path);
         });
 
         // binding event to els
         target.find('[data-ax-item-path]').unbind("change.axbinder").bind("change.axbinder", function (e) {
-            var i, hasItem = false, checked, new_value = [];
+            var i, hasItem = false, checked, new_value = [], this_type = (this.type || "").toLowerCase();
             var dom = $(e.target), item_path = dom.attr("data-ax-item-path"), mix_path = data_path + "[" + index + "]." + item_path + "", origin_value = (Function("", "return this." + mix_path + ";")).call(_this.model), value_type = get_type(origin_value), setAllow = true;
 
             if (value_type == "object" || value_type == "array") {
                 setAllow = false;
             }
 
-            if (this.type.toLowerCase() == "checkbox") {
+            if (this_type == "checkbox") {
                 if (target.find('[data-ax-item-path="' + item_path + '"]').length > 1) {
                     if (get_type(origin_value) != "array") {
                         if (typeof origin_value === "undefined" || origin_value == "") origin_value = []; else origin_value = [].concat(origin_value);
@@ -546,7 +552,7 @@ var AXBinder = (function () {
 
         // apply data value to els
         this.view_target.find('[data-ax-repeat="' + data_path + '"]').find('[data-ax-repeat-i="' + index + '"]').find('[data-ax-item-path="' + child_path + '"]').each(function () {
-            _this.set_els_value(this, this.tagName.toLowerCase(), this.type.toLowerCase(), value, data_path + "[" + index + "]." + child_path);
+            _this.set_els_value(this, this.tagName.toLowerCase(), (this.type || "").toLowerCase(), value, data_path + "[" + index + "]." + child_path);
         });
         return this;
     };
