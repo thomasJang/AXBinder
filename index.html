@@ -250,18 +250,20 @@
 
                                 {{#child}}
                                 {{^__DELETED__}}
-                                <input type="text" name="text" data-ax-item-path="child[{{@i}}]" value=""
-                                       class="AXInput W50"/>
-                                {{#@first}}
-                                <button class="AXButton" data-ax-repeat-child="child"
-                                        data-ax-repeat-child-c-index="{{@i}}" data-ax-repeat-click="add">+
-                                </button>
-                                {{/@first}}
-                                {{^@first}}
-                                <button class="AXButton" data-ax-repeat-child="child"
-                                        data-ax-repeat-child-c-index="{{@i}}" data-ax-repeat-click="remove">-
-                                </button>
-                                {{/@first}}
+                                    <input type="text" name="text" data-ax-item-path="child[{{@i}}].name" value=""
+                                           class="AXInput W50"/>
+
+                                    {{#@first}}
+                                    <button class="AXButton" data-ax-repeat-child="child"
+                                            data-ax-repeat-child-c-index="{{@i}}" data-ax-repeat-click="add">+
+                                    </button>
+                                    {{/@first}}
+                                    {{^@first}}
+                                    <button class="AXButton" data-ax-repeat-child="child"
+                                            data-ax-repeat-child-c-index="{{@i}}" data-ax-repeat-click="remove">-
+                                    </button>
+                                    {{/@first}}
+
                                 {{/__DELETED__}}
                                 {{/child}}
 
@@ -305,7 +307,7 @@
             //character: "wild",
             //hobby: ["movie", "play"],
             description: "",
-            child: ["값1","값2"]
+            child: [{name:"값1"},{name:"값2"}]
         }, {
             name: "thomas",
             tel: "010-8881-9000",
@@ -314,7 +316,7 @@
 //            character: "shiny",
             //hobby: ["movie", "play"],
             description: "",
-            child: ["값1","값2"]
+            child: [{name:"값1"},{name:"값2"}]
         }]
     };
 
@@ -338,7 +340,7 @@
                  * this.model.onchange(objectPath, Function);
                  */
                 this.model.onchange("*", function () {
-                    //console.log("onchange");
+                    // console.log("onchange");
                     _this.print_json();
                 });
 
@@ -346,11 +348,11 @@
                  * this.model.onclick(objectPath, callBack);
                  */
                 this.model.onclick("list", function () {
-                    console.log(this);
+                    // console.log(this);
                     var child_key = this.jquery.attr("data-ax-repeat-child"), child_index = this.jquery.attr("data-ax-repeat-child-c-index");
                     if (child_key) {
                         if (this.value == "add") {
-                            _this.model.child_add(this.repeat_path, this.item_index, child_key, "");
+                            _this.model.child_add(this.repeat_path, this.item_index, child_key, {name:""});
                         } else {
                             _this.model.child_remove(this.repeat_path, this.item_index, child_key, child_index);
                         }
@@ -371,7 +373,7 @@
                 this.print_json();
             },
             add: function () {
-                this.model.add("list", {name: "name:" + this.model.model.list.length, child: [""]});
+                this.model.add("list", {name: "name:" + this.model.model.list.length, child: [{name:""}]});
             },
             remove: function (repeat_path, item_index) {
                 this.model.remove(repeat_path, item_index);
