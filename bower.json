@@ -1,6 +1,6 @@
 {
 	"name": "AXBinder",
-	"version": "0.9.0",
+	"version": "0.9.1",
 	"authors": [
 		"ThomasJ <tom@axisj.com>"
 	],
@@ -11,7 +11,8 @@
 		"plugin"
 	],
 	"dependencies": {
-		"jquery": "^1.11.0"
+		"jquery": "^1.11.0",
+		"mustache": "https://github.com/thomasJang/mustache.js.git#4fcf40c"
 	},
 	"license": "MIT",
 	"homepage": "axisj.com"

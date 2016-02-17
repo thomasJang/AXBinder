@@ -4,12 +4,14 @@ Simple two way binding javascript, jQuery plugin
 
 [![axisj-contributed](https://img.shields.io/badge/AXISJ.com-OpensourceJavascriptUILibrary-green.svg)](https://github.com/axisj) ![](https://img.shields.io/badge/Seowoo-Mondo&Thomas-red.svg)
 
+
+## Online Demo
 http://axisj.github.io/AXBinder/
 
 
 ## dependencies
 - jQuery
-- Mustache - dist/AXBinder.min.js 내장
+- Mustache
 
 # API
 
@@ -51,7 +53,7 @@ http://axisj.github.io/AXBinder/
 ```js
 var obj = {
 	name: "Thomas",
-	email: "tom@axisj.com
+	email: "tom@axisj.com"
 }
 
 var myModel = new AXBinder();
@@ -111,8 +113,9 @@ myModel.onclick("list", function () {
 ```
 
 
+
 ### Model.add(repeat_path, Object) : Model
-data-ax-repeat="list" 하위 아이템을 추가합니다.
+data-ax-repeat="list" 하위아이템을 추가합니다.
 ```js
 myModel.add("list", {a:1});
 ```
@@ -148,7 +151,8 @@ myModel.child_update("list", 0, "child", 0, {a:1});
 ### Model.validate() : Object
 data-ax-validate 를 가진 엘리먼트에 대해 값을 검사하고 값이 없거나 짦은 경우 error를 리턴합니다.
 ```html
-<input type="text" data-ax-path="q" data-ax-validate="required" title="이름" maxlength="8" class="AXInput W150" value=""/>
+<input type="text" data-ax-path="q" data-ax-validate="required" 
+    title="이름" maxlength="8" class="AXInput W150" value=""/>
 ```
 ```js
 var rs = myModel.validate(), _s;

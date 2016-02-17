@@ -1,6 +1,6 @@
 ﻿{
-  "name": "AXJ",
-  "version": "1.0.18",
+  "name": "AXBinder",
+  "version": "0.9.1",
   "devDependencies": {
 	  "grunt": "~0.4.5",
 	  "grunt-contrib-jshint": "~0.10.0",

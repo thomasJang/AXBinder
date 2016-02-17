@@ -6,7 +6,7 @@
     <title></title>
     <script src="plugins/jquery/jquery.min.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="http://cdn.axisj.com/axisj/ui/arongi/AXJ.min.css"/>
+    <link rel="stylesheet" type="text/css" href="http://cdno.axisj.com/axisj/ui/arongi/AXJ.min.css"/>
     <script type="text/javascript" src="http://cdno.axisj.com/axisj/dist/AXJ.min.js"></script>
 
 
@@ -183,58 +183,58 @@
                         <tr>
                             <td align="center">
 
-                                {{__i__}}
+                                {{@i}}
 
-                                {{#__first__}}
+                                {{#@first}}
                                 <button class="AXButton" data-ax-repeat-click="add">+</button>
-                                {{/__first__}}
-                                {{^__first__}}
+                                {{/@first}}
+                                {{^@first}}
                                 <button class="AXButton" data-ax-repeat-click="remove">-</button>
-                                {{/__first__}}
+                                {{/@first}}
 
                             </td>
                             <td>
-                                <input type="text" name="input-text" id="name-{{__i__}}" data-ax-item-path="name" data-ax-validate="required"
+                                <input type="text" name="input-text" id="name-{{@i}}" data-ax-item-path="name" data-ax-validate="required"
                                        class="AXInput W60"/>
                             </td>
                             <td>
                                 <label>
-                                    <input type="radio" name="radio-{{__i__}}" data-ax-item-path="sex" value="M"/>
+                                    <input type="radio" name="radio-{{@i}}" data-ax-item-path="sex" value="M"/>
                                     Male
                                 </label>
                                 <br/>
                                 <label>
-                                    <input type="radio" name="radio-{{__i__}}" data-ax-item-path="sex" value="F"/>
+                                    <input type="radio" name="radio-{{@i}}" data-ax-item-path="sex" value="F"/>
                                     Female
                                 </label>
                             </td>
                             <td>
                                 <label>
-                                    <input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+                                    <input type="checkbox" name="checkbox-{{@i}}" data-ax-item-path="hobby"
                                            value="sport"/>
                                     sport
                                 </label>
                                 <br/>
                                 <label>
-                                    <input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+                                    <input type="checkbox" name="checkbox-{{@i}}" data-ax-item-path="hobby"
                                            value="movie"/>
                                     movie
                                 </label>
                                 <br/>
                                 <label>
-                                    <input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+                                    <input type="checkbox" name="checkbox-{{@i}}" data-ax-item-path="hobby"
                                            value="music"/>
                                     music
                                 </label>
                                 <br/>
                                 <label>
-                                    <input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+                                    <input type="checkbox" name="checkbox-{{@i}}" data-ax-item-path="hobby"
                                            value="play"/>
                                     play
                                 </label>
                                 <br/>
                                 <label>
-                                    <input type="checkbox" name="checkbox-{{__i__}}" data-ax-item-path="hobby"
+                                    <input type="checkbox" name="checkbox-{{@i}}" data-ax-item-path="hobby"
                                            value="work"/>
                                     work
                                 </label>
@@ -250,18 +250,18 @@
 
                                 {{#child}}
                                 {{^__DELETED__}}
-                                <input type="text" name="text" data-ax-item-path="child[{{__i__}}].name" value=""
+                                <input type="text" name="text" data-ax-item-path="child[{{@i}}]" value=""
                                        class="AXInput W50"/>
-                                {{#__first__}}
+                                {{#@first}}
                                 <button class="AXButton" data-ax-repeat-child="child"
-                                        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="add">+
+                                        data-ax-repeat-child-c-index="{{@i}}" data-ax-repeat-click="add">+
                                 </button>
-                                {{/__first__}}
-                                {{^__first__}}
+                                {{/@first}}
+                                {{^@first}}
                                 <button class="AXButton" data-ax-repeat-child="child"
-                                        data-ax-repeat-child-c-index="{{__i__}}" data-ax-repeat-click="remove">-
+                                        data-ax-repeat-child-c-index="{{@i}}" data-ax-repeat-click="remove">-
                                 </button>
-                                {{/__first__}}
+                                {{/@first}}
                                 {{/__DELETED__}}
                                 {{/child}}
 
@@ -276,6 +276,7 @@
                     </script>
                     </tbody>
                 </table>
+
             </div>
         </td>
         <td style="padding-top:80px;padding-left:15px;padding-right:10px;">
@@ -304,7 +305,7 @@
             //character: "wild",
             //hobby: ["movie", "play"],
             description: "",
-            child: [{name: "빈값"}, {name: "빈값"}]
+            child: ["값1","값2"]
         }, {
             name: "thomas",
             tel: "010-8881-9000",
@@ -313,7 +314,7 @@
 //            character: "shiny",
             //hobby: ["movie", "play"],
             description: "",
-            child: [{name: "빈값"}, {name: "빈값"}]
+            child: ["값1","값2"]
         }]
     };
 
@@ -337,7 +338,7 @@
                  * this.model.onchange(objectPath, Function);
                  */
                 this.model.onchange("*", function () {
-                    //console.log(this);
+                    //console.log("onchange");
                     _this.print_json();
                 });
 
@@ -349,7 +350,7 @@
                     var child_key = this.jquery.attr("data-ax-repeat-child"), child_index = this.jquery.attr("data-ax-repeat-child-c-index");
                     if (child_key) {
                         if (this.value == "add") {
-                            _this.model.child_add(this.repeat_path, this.item_index, child_key, {name: ""});
+                            _this.model.child_add(this.repeat_path, this.item_index, child_key, "");
                         } else {
                             _this.model.child_remove(this.repeat_path, this.item_index, child_key, child_index);
                         }
@@ -370,7 +371,7 @@
                 this.print_json();
             },
             add: function () {
-                this.model.add("list", {name: "name:" + this.model.model.list.length, child: [{name: ""}]});
+                this.model.add("list", {name: "name:" + this.model.model.list.length, child: [""]});
             },
             remove: function (repeat_path, item_index) {
                 this.model.remove(repeat_path, item_index);
