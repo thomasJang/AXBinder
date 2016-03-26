@@ -645,7 +645,6 @@ var AXBinder = (function () {
         var errors = [];
         this.view_target.find('[data-ax-path]').each(function () {
             var dom = $(this), data_path = dom.attr("data-ax-path"), is_validate = dom.attr("data-ax-validate");
-
             if (is_validate) {
                 var val = (Function("", "return this." + data_path + ";")).call(_this.model);
                 if (typeof val === "undefined") val = "";
@@ -679,6 +678,7 @@ var AXBinder = (function () {
             dom.find('[data-ax-validate]').each(function () {
                 var dom = $(this), is_validate = dom.attr("data-ax-validate"), item_path = dom.attr("data-ax-item-path");
                 var val = (Function("", "return this." + data_path + "[" + repeat_idx + "]." + item_path + ";")).call(_this.model);
+                if(typeof val == "undefined") val = "";
                 if (is_validate) {
                     var is_error = false;
                     if (is_validate == "required" && val.trim() == "") {
