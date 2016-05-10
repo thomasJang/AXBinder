@@ -1,6 +1,6 @@
 /**
  * AXBinder
- * 0.1
+ * 0.9.4
  *
  */
 
@@ -46,6 +46,17 @@ var AXBinder = (function () {
         return data_path + "[" + index + "]" + ((item_path == ".") ? "" : "." + item_path);
     }
 
+    function get_real_path(data_path) {
+        var path = [];
+        var _path = [].concat(data_path.split(/[\.\[\]]/g));
+
+        _path.forEach(function(n){
+            if(n !== "") path.push(n);
+        });
+        _path = null;
+        return "'" + path.join("']['") + "'";
+    }
+
     var klass = function () {
         this.model = {};
         this.tmpl = {};
@@ -77,12 +88,12 @@ var AXBinder = (function () {
 
             var val;
             try {
-                val = (Function("", "return this['" + data_path + "'];")).call(_this.model);
+                val = (Function("", "return this[" + get_real_path(data_path) + "];")).call(_this.model);
             } catch (e) {
                 /**
                  * onerror를 선언 한 경우에만 에러 출력
                  * */
-                if (_this.onerror) _this.onerror("not found target [model." + data_path + "]");
+                if (_this.onerror) _this.onerror("not found target [model." + get_real_path(data_path) + "]");
             }
 
             _this.set_els_value(this, this.tagName.toLowerCase(), this_type, val || "", data_path);
@@ -125,7 +136,7 @@ var AXBinder = (function () {
                 new_value = [],
                 dom = $(e.target),
                 data_path = dom.attr("data-ax-path"),
-                origin_value = (Function("", "return this['" + data_path + "'];")).call(_this.model),
+                origin_value = (Function("", "return this[" + get_real_path(data_path) + "];")).call(_this.model),
                 this_type = (this.type || "").toLowerCase(),
                 value_type = get_type(origin_value),
                 setAllow = true
@@ -138,7 +149,7 @@ var AXBinder = (function () {
 
             if (this_type == "checkbox") {
                 // 동일한 체크박스가 여러개 인지 판단합니다.
-                if (_this.view_target.find('[data-ax-path="' + data_path + '"]').length > 1) {
+                if (_this.view_target.find('[data-ax-path="' + get_real_path(data_path) + '"]').length > 1) {
 
                     if (get_type(origin_value) != "array") {
                         if (typeof origin_value === "undefined" || origin_value == "") origin_value = [];
@@ -171,14 +182,14 @@ var AXBinder = (function () {
                     origin_value = (this.checked) ? this.value : "";
                 }
 
-                (Function("val", "this['" + data_path + "'] = val;")).call(_this.model, origin_value);
+                (Function("val", "this[" + get_real_path(data_path) + "] = val;")).call(_this.model, origin_value);
                 _this.change(data_path, {
                     el: this, jquery: dom, tagname: this.tagName.toLowerCase(), value: origin_value
                 });
             }
             else {
                 if (setAllow) {
-                    (Function("val", "this['" + data_path + "'] = val;")).call(_this.model, this.value);
+                    (Function("val", "this[" + get_real_path(data_path) + "] = val;")).call(_this.model, this.value);
                     _this.change(data_path, {
                         el: this, jquery: dom, tagname: this.tagName.toLowerCase(), value: this.value
                     });
@@ -251,10 +262,10 @@ var AXBinder = (function () {
             if (!option_matched) {
                 if (options[0]) {
                     options[0].selected = true;
-                    (Function("val", "this['" + data_path + "'] = val;")).call(this.model, options[0].value);
+                    (Function("val", "this[" + get_real_path(data_path) + "] = val;")).call(this.model, options[0].value);
                 }
                 else {
-                    (Function("val", "this['" + data_path + "'] = val;")).call(this.model, "");
+                    (Function("val", "this[" + get_real_path(data_path) + "] = val;")).call(this.model, "");
                 }
             }
 
@@ -282,7 +293,7 @@ var AXBinder = (function () {
 
     klass.prototype.set = function (data_path, value) {
         var _this = this, obj_type, i, this_type = (this.type || "").toLowerCase();
-        (Function("val", "this['" + data_path + "'] = val;")).call(this.model, value);
+        (Function("val", "this[" + get_real_path(data_path) + "] = val;")).call(this.model, value);
         obj_type = get_type(value);
 
         if (obj_type == "object") {
@@ -291,7 +302,7 @@ var AXBinder = (function () {
             }
         }
         else if (obj_type == "array") {
-            this.view_target.find('[data-ax-path="' + data_path + '"]').each(function () {
+            this.view_target.find('[data-ax-path="' + get_real_path(data_path) + '"]').each(function () {
                 if (this_type == "checkbox" || this_type == "radio")
                     _this.set_els_value(this, this.tagName.toLowerCase(), this_type, value, data_path, "change");
             });
@@ -302,7 +313,7 @@ var AXBinder = (function () {
         }
         else {
             // apply data value to els
-            this.view_target.find('[data-ax-path="' + data_path + '"]').each(function () {
+            this.view_target.find('[data-ax-path="' + get_real_path(data_path) + '"]').each(function () {
                 _this.set_els_value(this, this.tagName.toLowerCase(), this_type, value, data_path, "change");
             });
         }
@@ -315,7 +326,7 @@ var AXBinder = (function () {
             return this.model;
         }
         else {
-            return (Function("", "return this['" + data_path + "'];")).call(this.model);
+            return (Function("", "return this[" + get_real_path(data_path) + "];")).call(this.model);
         }
 
     };
@@ -357,7 +368,7 @@ var AXBinder = (function () {
     };
 
     klass.prototype.print_tmpl = function (data_path, tmpl, isInit) {
-        var list = (Function("", "return this['" + data_path + "'];")).call(this.model);
+        var list = (Function("", "return this[" + get_real_path(data_path) + "];")).call(this.model);
         if (list && get_type(list) == "array") {
             for (var i = 0, l = list.length; i < l; i++) {
                 var item = list[i];
@@ -388,7 +399,7 @@ var AXBinder = (function () {
 
     klass.prototype.bind_event_tmpl = function (target, data_path) {
         var _this = this, index = target.attr("data-ax-repeat-i");
-        var list = (Function("", "return this['" + data_path + "'];")).call(this.model);
+        var list = (Function("", "return this[" + get_real_path(data_path) + "];")).call(this.model);
 
         target.find('[data-ax-repeat-click]').unbind("click.axbinder").bind("click.axbinder", function (e) {
             var target = axf.get_event_target(e.target, function (el) {
@@ -508,12 +519,12 @@ var AXBinder = (function () {
     };
 
     klass.prototype.add = function (data_path, item) {
-        var list = (Function("", "return this['" + data_path + "'];")).call(this.model);
+        var list = (Function("", "return this[" + get_real_path(data_path) + "];")).call(this.model);
         var tmpl = this.tmpl[data_path];
         item['@i'] = list.length;
         item['@r'] = list.length;
         item.__ADDED__ = true;
-        (Function("val", "this['" + data_path + "'].push(val);")).call(this.model, item);
+        (Function("val", "this[" + get_real_path(data_path) + "].push(val);")).call(this.model, item);
 
         // 다중 템플릿 처리
         for (var t in tmpl) {
@@ -540,7 +551,7 @@ var AXBinder = (function () {
     };
 
     klass.prototype.remove = function (data_path, index) {
-        var list = (Function("", "return this['" + data_path + "'];")).call(this.model);
+        var list = (Function("", "return this[" + get_real_path(data_path) + "];")).call(this.model);
         var tmpl = this.tmpl[data_path];
         if (typeof index == "undefined") index = list.length - 1;
         var remove_item = list[index];
@@ -572,7 +583,7 @@ var AXBinder = (function () {
     };
 
     klass.prototype.update = function (data_path, index, item) {
-        var list = (Function("", "return this['" + data_path + "'];")).call(this.model);
+        var list = (Function("", "return this[" + get_real_path(data_path) + "];")).call(this.model);
         var tmpl = this.tmpl[data_path];
         if (typeof index != "undefined" && item) list.splice(index, 1, item);
 
@@ -597,16 +608,16 @@ var AXBinder = (function () {
     };
 
     klass.prototype.child_add = function (data_path, index, child_path, child_item) {
-        var _list = (Function("", "return this['" + data_path + "'];")).call(this.model);
-        var list = (Function("", "return this['" + data_path + "'][" + index + "]." + child_path + ";")).call(this.model);
+        var _list = (Function("", "return this[" + get_real_path(data_path) + "];")).call(this.model);
+        var list = (Function("", "return this[" + get_real_path(data_path) + "][" + index + "]." + child_path + ";")).call(this.model);
         child_item.__ADDED__ = true;
         list.push(child_item);
         this.update(data_path, index, _list[index]);
     };
 
     klass.prototype.child_remove = function (data_path, index, child_path, child_index) {
-        var _list = (Function("", "return this['" + data_path + "'];")).call(this.model);
-        var list = (Function("", "return this['" + data_path + "'][" + index + "]." + child_path + ";")).call(this.model);
+        var _list = (Function("", "return this[" + get_real_path(data_path) + "];")).call(this.model);
+        var list = (Function("", "return this[" + get_real_path(data_path) + "][" + index + "]." + child_path + ";")).call(this.model);
         var remove_item = list[child_index];
         if (remove_item.__ADDED__) {
             list.splice(child_index, 1);
@@ -618,26 +629,26 @@ var AXBinder = (function () {
     };
 
     klass.prototype.child_update = function (data_path, index, child_path, child_index, child_item) {
-        var _list = (Function("", "return this['" + data_path + "'];")).call(this.model);
-        var list = (Function("", "return this['" + data_path + "'][" + index + "]." + child_path + ";")).call(this.model);
+        var _list = (Function("", "return this[" + get_real_path(data_path) + "];")).call(this.model);
+        var list = (Function("", "return this[" + get_real_path(data_path) + "][" + index + "]." + child_path + ";")).call(this.model);
         list[child_index] = child_item;
         this.update(data_path, index, _list[index]);
     };
 
     klass.prototype.child_set = function (data_path, index, child_path, value) {
         var _this = this, i;
-        (Function("val", "this['" + data_path + "'][" + index + "]." + child_path + " = val;")).call(this.model, value);
+        (Function("val", "this[" + get_real_path(data_path) + "][" + index + "]." + child_path + " = val;")).call(this.model, value);
 
         // apply data value to els
-        this.view_target.find('[data-ax-repeat="' + data_path + '"]').find('[data-ax-repeat-i="' + index + '"]').find('[data-ax-item-path="' + child_path + '"]').each(function () {
+        this.view_target.find('[data-ax-repeat="' + get_real_path(data_path) + '"]').find('[data-ax-repeat-i="' + index + '"]').find('[data-ax-item-path="' + child_path + '"]').each(function () {
             _this.set_els_value(this, this.tagName.toLowerCase(), (this.type || "").toLowerCase(), value, data_path + "[" + index + "]." + child_path);
         });
         return this;
     };
 
     klass.prototype.focus = function (data_path) {
-        this.view_target.find('[data-ax-path="' + data_path + '"]').focus();
-        //this.view_target.find('[data-ax-item-path="' + data_path + '"]').focus();
+        this.view_target.find('[data-ax-path="' + get_real_path(data_path) + '"]').focus();
+        //this.view_target.find('[data-ax-item-path="' + get_real_path(data_path) + '"]').focus();
     };
 
     klass.prototype.validate = function () {
@@ -646,7 +657,7 @@ var AXBinder = (function () {
         this.view_target.find('[data-ax-path]').each(function () {
             var dom = $(this), data_path = dom.attr("data-ax-path"), is_validate = dom.attr("data-ax-validate");
             if (is_validate) {
-                var val = (Function("", "return this['" + data_path + "'];")).call(_this.model);
+                var val = (Function("", "return this[" + get_real_path(data_path) + "];")).call(_this.model);
                 if (typeof val === "undefined") val = "";
                 var _val = val.toString();
 
@@ -677,8 +688,8 @@ var AXBinder = (function () {
 
             dom.find('[data-ax-validate]').each(function () {
                 var dom = $(this), is_validate = dom.attr("data-ax-validate"), item_path = dom.attr("data-ax-item-path");
-                var val = (Function("", "return this['" + data_path + "'][" + repeat_idx + "]." + item_path + ";")).call(_this.model);
-                if(typeof val == "undefined") val = "";
+                var val = (Function("", "return this[" + get_real_path(data_path) + "][" + repeat_idx + "]." + item_path + ";")).call(_this.model);
+                if (typeof val == "undefined") val = "";
                 if (is_validate) {
                     var is_error = false;
                     if (is_validate == "required" && val.trim() == "") {
