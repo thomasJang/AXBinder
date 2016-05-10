@@ -1,6 +1,6 @@
 /**
  * AXBinder
- * 0.9.4
+ * 0.9.5
  *
  */
 
@@ -149,7 +149,7 @@ var AXBinder = (function () {
 
             if (this_type == "checkbox") {
                 // 동일한 체크박스가 여러개 인지 판단합니다.
-                if (_this.view_target.find('[data-ax-path="' + get_real_path(data_path) + '"]').length > 1) {
+                if (_this.view_target.find('[data-ax-path="' + (data_path) + '"]').length > 1) {
 
                     if (get_type(origin_value) != "array") {
                         if (typeof origin_value === "undefined" || origin_value == "") origin_value = [];
@@ -293,16 +293,17 @@ var AXBinder = (function () {
 
     klass.prototype.set = function (data_path, value) {
         var _this = this, obj_type, i, this_type = (this.type || "").toLowerCase();
+
         (Function("val", "this[" + get_real_path(data_path) + "] = val;")).call(this.model, value);
         obj_type = get_type(value);
-
+//console.log(obj_type, this.model.amount);
         if (obj_type == "object") {
             for (var k in value) {
                 this.set(data_path + "." + k, value[k]);
             }
         }
         else if (obj_type == "array") {
-            this.view_target.find('[data-ax-path="' + get_real_path(data_path) + '"]').each(function () {
+            this.view_target.find('[data-ax-path="' + (data_path) + '"]').each(function () {
                 if (this_type == "checkbox" || this_type == "radio")
                     _this.set_els_value(this, this.tagName.toLowerCase(), this_type, value, data_path, "change");
             });
@@ -313,7 +314,7 @@ var AXBinder = (function () {
         }
         else {
             // apply data value to els
-            this.view_target.find('[data-ax-path="' + get_real_path(data_path) + '"]').each(function () {
+            this.view_target.find('[data-ax-path="' + (data_path) + '"]').each(function () {
                 _this.set_els_value(this, this.tagName.toLowerCase(), this_type, value, data_path, "change");
             });
         }
@@ -640,14 +641,14 @@ var AXBinder = (function () {
         (Function("val", "this[" + get_real_path(data_path) + "][" + index + "]." + child_path + " = val;")).call(this.model, value);
 
         // apply data value to els
-        this.view_target.find('[data-ax-repeat="' + get_real_path(data_path) + '"]').find('[data-ax-repeat-i="' + index + '"]').find('[data-ax-item-path="' + child_path + '"]').each(function () {
+        this.view_target.find('[data-ax-repeat="' + (data_path) + '"]').find('[data-ax-repeat-i="' + index + '"]').find('[data-ax-item-path="' + child_path + '"]').each(function () {
             _this.set_els_value(this, this.tagName.toLowerCase(), (this.type || "").toLowerCase(), value, data_path + "[" + index + "]." + child_path);
         });
         return this;
     };
 
     klass.prototype.focus = function (data_path) {
-        this.view_target.find('[data-ax-path="' + get_real_path(data_path) + '"]').focus();
+        this.view_target.find('[data-ax-path="' + (data_path) + '"]').focus();
         //this.view_target.find('[data-ax-item-path="' + get_real_path(data_path) + '"]').focus();
     };
 
