@@ -151,7 +151,6 @@ myModel.child_update("list", 0, "child", 0, {a:1});
 ### Model.onupdate(data_path, callBack) : Model
 ```js
 this.model.onupdate("moderator", function () {
-    app.modal.resize();
     AXInput.alignAllAnchor();
     $('#moderator-add').val('');
 
