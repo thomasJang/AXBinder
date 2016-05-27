@@ -1,6 +1,6 @@
 /**
  * AXBinder
- * 0.9.6
+ * 0.9.7
  *
  */
 
@@ -690,13 +690,15 @@ var AXBinder = (function () {
             dom.find('[data-ax-validate]').each(function () {
                 var dom = $(this), is_validate = dom.attr("data-ax-validate"), item_path = dom.attr("data-ax-item-path");
                 var val = (Function("", "return this[" + get_real_path(data_path) + "][" + repeat_idx + "]." + item_path + ";")).call(_this.model);
-                if (typeof val == "undefined") val = "";
+                if (typeof val === "undefined") val = "";
+                var _val = val.toString();
+
                 if (is_validate) {
                     var is_error = false;
-                    if (is_validate == "required" && val.trim() == "") {
+                    if (is_validate == "required" && _val.trim() == "") {
                         is_error = true;
                     }
-                    else if (!(/\D.?/g).test(is_validate) && val.trim().length < is_validate.number()) {
+                    else if (!(/\D.?/g).test(is_validate) && _val.trim().length < is_validate.number()) {
                         is_error = true;
                     }
 
