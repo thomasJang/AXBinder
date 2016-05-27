@@ -245,6 +245,12 @@
                                     <option value="shiny">shiny</option>
                                     <option value="nice">nice</option>
                                 </select>
+
+
+                                <input data-ax-item-path="qty" data-update-qty="{{@i}}"/>
+                                <input data-ax-item-path="cost" data-update-qty="{{@i}}"/>
+                                <span data-ax-item-path="price"></span>
+
                             </td>
                             <td>
 
@@ -299,25 +305,32 @@
         hobby: ["sport"],
         useYn: "N",
         description: "http://www.axisj.com",
-        list: [{
-            name: "thomas",
-            tel: "010-8881-9000",
-            email: "tom@axisj.com",
-            sex: "M",
-            //character: "wild",
-            //hobby: ["movie", "play"],
-            description: "",
-            child: [{name:"값1"},{name:"값2"}]
-        }, {
-            name: "thomas",
-            tel: "010-8881-9000",
-            email: "tom@axisj.com",
-            sex: "M",
-//            character: "shiny",
-            //hobby: ["movie", "play"],
-            description: "",
-            child: [{name:"값1"},{name:"값2"}]
-        }]
+        list: [
+            {
+                name: "thomas",
+                tel: "010-8881-9000",
+                email: "tom@axisj.com",
+                sex: "M",
+                //character: "wild",
+                //hobby: ["movie", "play"],
+                description: "",
+                child: [{name:"값1"},{name:"값2"}],
+                qty: 10,
+                cost: 100
+            },
+            {
+                name: "thomas",
+                tel: "010-8881-9000",
+                email: "tom@axisj.com",
+                sex: "M",
+    //            character: "shiny",
+                //hobby: ["movie", "play"],
+                description: "",
+                child: [{name:"값1"},{name:"값2"}],
+                qty: 20,
+                cost: 100
+            }
+        ]
     };
 
     var fnObj = {
@@ -340,7 +353,22 @@
                  * this.model.onchange(objectPath, Function);
                  */
                 this.model.onchange("*", function () {
-                    console.log("onchange");
+                    //console.log("onchange");
+
+
+                    if(this.el && this.el.getAttribute("data-update-qty")){
+
+                        var data = _this.model.get("list["+this.el.getAttribute("data-update-qty")+"]");
+                        //console.log(data);
+                        data.price = (data.qty.number() * data.cost.number()).money();
+                        data.qty = (data.qty).money();
+                        data.cost = (data.cost).money();
+
+                        console.log(data);
+                        
+                        _this.model.update("list", this.el.getAttribute("data-update-qty"), data);
+
+                    }
                     _this.print_json();
                 });
 
@@ -368,6 +396,11 @@
                  * AXBinder.set_model(Object, jQueryObject);
                  * Object를 타겟 아이템 아래에 반영
                  */
+
+                obj.list.forEach(function(n){
+                   n.price = (n.qty * n.cost).money();
+                });
+
                 this.model.set_model(obj, $("#form-target"));
 
                 this.print_json();

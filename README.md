@@ -148,6 +148,17 @@ data-ax-repeat="list" 하위 아이템중 child_key의 하위 아이템을 교�
 myModel.child_update("list", 0, "child", 0, {a:1});
 ```
 
+### Model.onupdate(data_path, callBack) : Model
+```js
+this.model.onupdate("moderator", function () {
+    app.modal.resize();
+    AXInput.alignAllAnchor();
+    $('#moderator-add').val('');
+
+    $moderator.find('[data-role-user-btn]').unbind("click").bind("click", role_user_btn_onclick);
+});
+```
+
 ### Model.validate() : Object
 data-ax-validate 를 가진 엘리먼트에 대해 값을 검사하고 값이 없거나 짦은 경우 error를 리턴합니다.
 ```html
