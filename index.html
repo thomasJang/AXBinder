@@ -338,11 +338,15 @@
             this.form.init();
 
             $("#ax-btn-validate").click(function (){
+                fnObj.form.model.set("sex", "F");
                 fnObj.form.validate();
             });
             $("#ax-btn-list-add").click(function () {
                 fnObj.form.add();
             });
+
+
+
         },
         form: {
             model: new AXBinder(),
@@ -437,6 +441,9 @@
 
     $(document.body).ready(function () {
         fnObj.pageStart();
+
+
+
     });
 
 </script>

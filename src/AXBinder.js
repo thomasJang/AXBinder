@@ -1,6 +1,6 @@
 /**
  * AXBinder
- * 0.9.7
+ * 0.9.8
  *
  */
 
@@ -231,14 +231,21 @@ var AXBinder = (function () {
             if (type == "checkbox" || type == "radio") {
                 i = value.length;
                 var checked = false;
-                if (i > 0) {
-                    while (i--) {
-                        if (typeof value[i] !== "undefined" && el.value === value[i].toString()) {
-                            checked = true;
+                try {
+                    if (i > 0) {
+                        while (i--) {
+                            if (typeof value[i] !== "undefined" && el.value === value[i].toString()) {
+                                checked = true;
+                            }
                         }
                     }
+                }catch(e){
+                    console.log(e);
                 }
+                
                 el.checked = checked;
+                console.log(el.checked);
+                
             }
             else {
                 el.value = value.join('');
@@ -292,11 +299,11 @@ var AXBinder = (function () {
     };
 
     klass.prototype.set = function (data_path, value) {
-        var _this = this, obj_type, i, this_type = (this.type || "").toLowerCase();
+        var _this = this, obj_type, i, this_type;
 
         (Function("val", "this[" + get_real_path(data_path) + "] = val;")).call(this.model, value);
         obj_type = get_type(value);
-//console.log(obj_type, this.model.amount);
+
         if (obj_type == "object") {
             for (var k in value) {
                 this.set(data_path + "." + k, value[k]);
@@ -304,6 +311,7 @@ var AXBinder = (function () {
         }
         else if (obj_type == "array") {
             this.view_target.find('[data-ax-path="' + (data_path) + '"]').each(function () {
+                this_type = (this.type || "").toLowerCase();
                 if (this_type == "checkbox" || this_type == "radio")
                     _this.set_els_value(this, this.tagName.toLowerCase(), this_type, value, data_path, "change");
             });
@@ -315,7 +323,7 @@ var AXBinder = (function () {
         else {
             // apply data value to els
             this.view_target.find('[data-ax-path="' + (data_path) + '"]').each(function () {
-                _this.set_els_value(this, this.tagName.toLowerCase(), this_type, value, data_path, "change");
+                _this.set_els_value(this, this.tagName.toLowerCase(), (this.type || "").toLowerCase(), value, data_path, "change");
             });
         }
         return this;
