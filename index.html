@@ -344,9 +344,7 @@
             $("#ax-btn-list-add").click(function () {
                 fnObj.form.add();
             });
-
-
-
+            
         },
         form: {
             model: new AXBinder(),
@@ -408,6 +406,11 @@
                 this.model.set_model(obj, $("#form-target"));
 
                 this.print_json();
+                
+                $('[data-ax-path="email"]').on("change", function(){
+                   console.log("i'm changed");
+                });
+                
             },
             add: function () {
                 this.model.add("list", {name: "name:" + this.model.model.list.length, child: [{name:""}]});

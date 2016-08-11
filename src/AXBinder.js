@@ -1,6 +1,6 @@
 /**
  * AXBinder
- * 0.9.8
+ * 0.9.9
  *
  */
 
@@ -198,10 +198,12 @@ var AXBinder = (function () {
 
             dom.data("changedTime", (new Date()).getTime());
         });
+        /*
         this.view_target.find('[data-ax-path]').unbind("blur.axbinder").bind("blur.axbinder", function (e) {
             var dom = $(e.target);
             if (typeof dom.data("changedTime") == "undefined" || dom.data("changedTime") < (new Date()).getTime() - 10) dom.trigger("change");
         });
+        */
 
         //_this.tmpl
         var callBack;
